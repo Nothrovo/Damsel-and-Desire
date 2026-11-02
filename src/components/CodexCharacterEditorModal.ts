@@ -5,7 +5,8 @@ import {
   dmUpsertCharacter,
   dmDeleteCharacter,
   dmUploadCharacterImage,
-  resolvePortraitUrl
+  resolvePortraitUrl,
+  HOUSEN_CLUB_DIRECTORIES
 } from "../api/codex";
 import { dmAuthStore } from "../store/dmAuthStore";
 import { dmAuthModal } from "./DmAuthModal";
@@ -17,6 +18,16 @@ class CodexCharacterEditorModal {
   private isEditMode: boolean = false;
   private editingCharId: string | null = null;
   private onSavedCallback: ((slug: string) => void) | null = null;
+
+  // Avatar framing & viewport state
+  private avatarZoom: number = 1.0;
+  private avatarPanX: number = 0;
+  private avatarPanY: number = 0;
+  private isDraggingAvatar: boolean = false;
+  private dragStartX: number = 0;
+  private dragStartY: number = 0;
+  private initialPanX: number = 0;
+  private initialPanY: number = 0;
 
   public render(): string {
     const allSubs = getAllSubcategories();
@@ -48,20 +59,20 @@ class CodexCharacterEditorModal {
           </div>
 
           <!-- Editor Tabs Bar -->
-          <div style="display:flex;gap:6px;padding:0.75rem 1.75rem;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle);overflow-x:auto;">
-            <button type="button" class="codex-editor-tab active btn btn-xs" data-etab="tab_meta" style="background:var(--rose-primary);color:#fff;border-color:var(--rose-primary);">
+          <div class="codex-editor-tabs-bar" style="display:flex;gap:6px;padding:0.75rem 1.75rem;background:var(--bg-surface);border-bottom:1px solid var(--border-subtle);overflow-x:auto;">
+            <button type="button" class="codex-editor-tab active" data-etab="tab_meta" style="background:rgba(225,29,72,0.15);border:1px solid var(--rose-primary);color:#fff;padding:6px 14px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
               1. 📋 Identitas &amp; Afiliasi Ganda
             </button>
-            <button type="button" class="codex-editor-tab btn btn-xs btn-secondary" data-etab="tab_appearance">
-              2. 🎀 Pasfoto ID &amp; Visual
+            <button type="button" class="codex-editor-tab" data-etab="tab_appearance" style="background:var(--bg-card);border:1px solid var(--border-card);color:var(--text-muted);padding:6px 14px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+              2. 🎀 Pasfoto ID &amp; Framing
             </button>
-            <button type="button" class="codex-editor-tab btn btn-xs btn-secondary" data-etab="tab_stats">
+            <button type="button" class="codex-editor-tab" data-etab="tab_stats" style="background:var(--bg-card);border:1px solid var(--border-card);color:var(--text-muted);padding:6px 14px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
               3. ⚔️ Statistik &amp; Vitals
             </button>
-            <button type="button" class="codex-editor-tab btn btn-xs btn-secondary" data-etab="tab_tier2">
+            <button type="button" class="codex-editor-tab" data-etab="tab_tier2" style="background:var(--bg-card);border:1px solid var(--border-card);color:var(--text-muted);padding:6px 14px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
               4. 🧠 Persona, Flaws &amp; Hadiah
             </button>
-            <button type="button" class="codex-editor-tab btn btn-xs btn-secondary" data-etab="tab_tier3">
+            <button type="button" class="codex-editor-tab" data-etab="tab_tier3" style="background:var(--bg-card);border:1px solid var(--border-card);color:var(--text-muted);padding:6px 14px;border-radius:var(--radius-sm);font-size:0.82rem;font-weight:600;cursor:pointer;white-space:nowrap;">
               5. 🔒 Pikiran, Rahasia &amp; DM Notes
             </button>
           </div>
@@ -158,6 +169,12 @@ class CodexCharacterEditorModal {
                     <option value="music">🎸 Klub Musik &amp; Band</option>
                     <option value="photography">📷 Klub Fotografi</option>
                     <option value="volleyball">🏐 Klub Bola Voli</option>
+                    <option value="athletics">🏃 Klub Atletik &amp; Lari</option>
+                    <option value="badminton">🏸 Klub Bulutangkis</option>
+                    <option value="swimming">🏊 Klub Renang</option>
+                    <option value="tea">🍵 Klub Upacara Teh (Sadou)</option>
+                    <option value="literature">📚 Klub Sastra &amp; Buku</option>
+                    <option value="science">🧪 Klub Sains &amp; Kimia</option>
                     <option value="osis">👑 Presidium OSIS</option>
                     <option value="kokuhou">🦅 Geng Kokuhou</option>
                     <option value="touki_gang">👹 Geng Touki</option>
@@ -205,26 +222,79 @@ class CodexCharacterEditorModal {
                   <input type="text" id="edCharMbti" placeholder="ISFP" style="width:100%;box-sizing:border-box;background:var(--bg-input);border:1px solid var(--border-card);border-radius:var(--radius-sm);padding:0.45rem 0.65rem;color:var(--text-main);" />
                 </div>
               </div>
-            <!-- TAB 2: PASFOTO ID & VISUAL -->
+            </div> <!-- END TAB 1 (etab_tab_meta) -->
+
+            <!-- TAB 2: PASFOTO ID & FRAMING -->
             <div id="etab_tab_appearance" class="codex-editor-panel" style="display:none;">
-              <div style="display:grid;grid-template-columns:180px 1fr;gap:1.5rem;margin-bottom:1.5rem;align-items:start;">
-                <div style="background:#0d111a;border:2px solid var(--amber-gold);border-radius:var(--radius-md);aspect-ratio:3/4;overflow:hidden;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow-sm);">
-                  <img id="edAvatarPreview" src="https://api.dicebear.com/7.x/adventurer/svg?seed=housen" alt="Preview" style="width:100%;height:100%;object-fit:cover;" />
+              <div style="display:grid;grid-template-columns:220px 1fr;gap:2rem;margin-bottom:1.5rem;align-items:start;">
+                
+                <!-- Viewport Frame (3:4 ratio) with drag support -->
+                <div style="display:flex;flex-direction:column;align-items:center;gap:10px;">
+                  <div id="edAvatarViewport" style="width:200px;height:266px;background:#090d16;border:2px solid var(--amber-gold);border-radius:var(--radius-md);overflow:hidden;position:relative;cursor:grab;box-shadow:0 8px 24px rgba(0,0,0,0.6);user-select:none;">
+                    <img id="edAvatarPreview" src="https://api.dicebear.com/7.x/adventurer/svg?seed=housen" alt="Preview" style="position:absolute;width:100%;height:100%;object-fit:cover;transform-origin:center center;user-select:none;pointer-events:none;transition:transform 0.05s ease-out;" />
+                    <div style="position:absolute;top:6px;left:6px;background:rgba(0,0,0,0.65);backdrop-filter:blur(4px);padding:2px 8px;border-radius:4px;font-size:0.68rem;color:var(--amber-gold);pointer-events:none;font-weight:700;">
+                      ✋ Drag foto untuk menggeser
+                    </div>
+                  </div>
+                  <span style="font-size:0.72rem;color:var(--text-muted);text-align:center;">
+                    Rasio pasfoto 3:4 standar dossier sekolah
+                  </span>
                 </div>
-                <div>
-                  <label style="display:block;font-size:0.85rem;color:var(--amber-gold);margin-bottom:6px;font-weight:600;">Unggah Pasfoto ID Siswa (Supabase Storage Cloud)</label>
-                  
-                  <div style="background:var(--bg-surface);border:1.5px dashed var(--amber-gold);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1rem;">
-                    <label style="display:block;font-size:0.8rem;color:var(--text-main);margin-bottom:6px;font-weight:600;">
-                      📤 Pilih File Gambar dari Perangkat Anda (JPG/PNG):
+
+                <!-- Framing Controls: Zoom, Pan, Upload -->
+                <div style="display:flex;flex-direction:column;gap:1.25rem;">
+                  <!-- Upload Box -->
+                  <div style="background:var(--bg-surface);border:1.5px dashed var(--amber-gold);border-radius:var(--radius-md);padding:1.25rem;">
+                    <label style="display:block;font-size:0.85rem;color:var(--text-main);margin-bottom:6px;font-weight:700;">
+                      📤 Unggah Pasfoto ID Siswa (Supabase Storage Cloud)
                     </label>
                     <input type="file" id="edAvatarFileInput" accept="image/*" style="font-size:0.85rem;color:var(--text-muted);width:100%;" />
-                    <div id="edUploadStatus" style="font-size:0.8rem;color:var(--amber-gold);margin-top:8px;font-weight:600;"></div>
+                    <div id="edUploadStatus" style="font-size:0.8rem;color:var(--amber-gold);margin-top:6px;font-weight:600;"></div>
+                    
+                    <div style="margin-top:0.75rem;">
+                      <label style="display:block;font-size:0.75rem;color:var(--text-dim);margin-bottom:4px;">Atau Tempel Tautan URL Gambar Langsung:</label>
+                      <input type="text" id="edAvatarUrl" placeholder="https://..." style="width:100%;box-sizing:border-box;background:var(--bg-input);border:1px solid var(--border-card);border-radius:var(--radius-sm);padding:0.45rem 0.65rem;color:var(--text-main);font-size:0.85rem;" />
+                    </div>
                   </div>
 
-                  <label style="display:block;font-size:0.8rem;color:var(--text-dim);margin-bottom:4px;">Atau Tempel Tautan URL Gambar Langsung:</label>
-                  <input type="text" id="edAvatarUrl" placeholder="https://..." style="width:100%;box-sizing:border-box;background:var(--bg-input);border:1px solid var(--border-card);border-radius:var(--radius-sm);padding:0.55rem 0.75rem;color:var(--text-main);" />
+                  <!-- Framing Controls -->
+                  <div style="background:rgba(255,255,255,0.02);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:1.25rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                      <strong style="font-size:0.85rem;color:var(--amber-gold);">
+                        🎯 Atur Zoom &amp; Posisi Pasfoto:
+                      </strong>
+                      <button type="button" id="edBtnResetFraming" class="btn btn-xs btn-secondary" style="border-radius:var(--radius-sm);padding:2px 8px;font-size:0.72rem;">
+                        ↺ Reset Posisi
+                      </button>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                      <div>
+                        <label style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-main);margin-bottom:4px;">
+                          <span>🔍 Zoom Foto:</span>
+                          <span id="edZoomText" style="color:var(--amber-gold);font-weight:700;">100%</span>
+                        </label>
+                        <input type="range" id="edAvatarZoom" min="1" max="2.5" step="0.05" value="1" style="width:100%;accent-color:var(--amber-gold);" />
+                      </div>
+                      <div>
+                        <label style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-main);margin-bottom:4px;">
+                          <span>↔️ Geser X (Horisontal):</span>
+                          <span id="edPanXText" style="color:var(--text-muted);font-weight:700;">0px</span>
+                        </label>
+                        <input type="range" id="edAvatarPanX" min="-120" max="120" step="1" value="0" style="width:100%;accent-color:var(--rose-primary);" />
+                      </div>
+                    </div>
+
+                    <div style="margin-top:0.75rem;">
+                      <label style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--text-main);margin-bottom:4px;">
+                        <span>↕️ Geser Y (Vertikal):</span>
+                        <span id="edPanYText" style="color:var(--text-muted);font-weight:700;">0px</span>
+                      </label>
+                      <input type="range" id="edAvatarPanY" min="-120" max="120" step="1" value="0" style="width:100%;accent-color:var(--rose-primary);" />
+                    </div>
+                  </div>
                 </div>
+
               </div>
 
               <div>
@@ -402,12 +472,12 @@ class CodexCharacterEditorModal {
       btn.addEventListener("click", () => {
         tabBtns.forEach((b) => {
           b.classList.remove("active");
-          (b as HTMLElement).style.background = "";
-          (b as HTMLElement).style.color = "";
-          (b as HTMLElement).style.borderColor = "";
+          (b as HTMLElement).style.background = "var(--bg-card)";
+          (b as HTMLElement).style.color = "var(--text-muted)";
+          (b as HTMLElement).style.borderColor = "var(--border-card)";
         });
         btn.classList.add("active");
-        (btn as HTMLElement).style.background = "var(--rose-primary)";
+        (btn as HTMLElement).style.background = "rgba(225,29,72,0.15)";
         (btn as HTMLElement).style.color = "#fff";
         (btn as HTMLElement).style.borderColor = "var(--rose-primary)";
 
@@ -418,6 +488,56 @@ class CodexCharacterEditorModal {
         const targetPanel = document.getElementById(`etab_${targetId}`);
         if (targetPanel) targetPanel.style.display = "block";
       });
+    });
+
+    // Avatar Viewport Dragging (Pan)
+    const viewport = document.getElementById("edAvatarViewport");
+    viewport?.addEventListener("mousedown", (e: MouseEvent) => {
+      this.isDraggingAvatar = true;
+      this.dragStartX = e.clientX;
+      this.dragStartY = e.clientY;
+      this.initialPanX = this.avatarPanX;
+      this.initialPanY = this.avatarPanY;
+      if (viewport) viewport.style.cursor = "grabbing";
+    });
+
+    window.addEventListener("mousemove", (e: MouseEvent) => {
+      if (!this.isDraggingAvatar) return;
+      const dx = (e.clientX - this.dragStartX) / this.avatarZoom;
+      const dy = (e.clientY - this.dragStartY) / this.avatarZoom;
+      this.avatarPanX = Math.round(this.initialPanX + dx);
+      this.avatarPanY = Math.round(this.initialPanY + dy);
+      this.updateAvatarTransform();
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (this.isDraggingAvatar) {
+        this.isDraggingAvatar = false;
+        if (viewport) viewport.style.cursor = "grab";
+      }
+    });
+
+    // Zoom slider
+    document.getElementById("edAvatarZoom")?.addEventListener("input", (e: any) => {
+      this.avatarZoom = parseFloat(e.target.value) || 1.0;
+      this.updateAvatarTransform();
+    });
+
+    // Pan X slider
+    document.getElementById("edAvatarPanX")?.addEventListener("input", (e: any) => {
+      this.avatarPanX = parseInt(e.target.value, 10) || 0;
+      this.updateAvatarTransform();
+    });
+
+    // Pan Y slider
+    document.getElementById("edAvatarPanY")?.addEventListener("input", (e: any) => {
+      this.avatarPanY = parseInt(e.target.value, 10) || 0;
+      this.updateAvatarTransform();
+    });
+
+    // Reset button
+    document.getElementById("edBtnResetFraming")?.addEventListener("click", () => {
+      this.resetAvatarFraming();
     });
 
     // Auto-slug from name when in create mode
@@ -505,6 +625,39 @@ class CodexCharacterEditorModal {
     document.getElementById("edDeleteCharBtn")?.addEventListener("click", () => this.handleDelete());
   }
 
+  private updateAvatarTransform() {
+    const img = document.getElementById("edAvatarPreview") as HTMLImageElement;
+    if (img) {
+      img.style.transform = `scale(${this.avatarZoom}) translate(${this.avatarPanX}px, ${this.avatarPanY}px)`;
+    }
+    const zoomText = document.getElementById("edZoomText");
+    if (zoomText) zoomText.textContent = `${Math.round(this.avatarZoom * 100)}%`;
+    const panXText = document.getElementById("edPanXText");
+    if (panXText) panXText.textContent = `${Math.round(this.avatarPanX)}px`;
+    const panYText = document.getElementById("edPanYText");
+    if (panYText) panYText.textContent = `${Math.round(this.avatarPanY)}px`;
+
+    const zoomSlider = document.getElementById("edAvatarZoom") as HTMLInputElement;
+    if (zoomSlider && Math.abs(parseFloat(zoomSlider.value) - this.avatarZoom) > 0.01) {
+      zoomSlider.value = String(this.avatarZoom);
+    }
+    const panXSlider = document.getElementById("edAvatarPanX") as HTMLInputElement;
+    if (panXSlider && parseInt(panXSlider.value, 10) !== this.avatarPanX) {
+      panXSlider.value = String(this.avatarPanX);
+    }
+    const panYSlider = document.getElementById("edAvatarPanY") as HTMLInputElement;
+    if (panYSlider && parseInt(panYSlider.value, 10) !== this.avatarPanY) {
+      panYSlider.value = String(this.avatarPanY);
+    }
+  }
+
+  private resetAvatarFraming() {
+    this.avatarZoom = 1.0;
+    this.avatarPanX = 0;
+    this.avatarPanY = 0;
+    this.updateAvatarTransform();
+  }
+
   private syncCheckboxesFromInputs() {
     const room = (document.getElementById("edCharClassRoom") as HTMLSelectElement)?.value || "";
     const club = (document.getElementById("edCharClub") as HTMLSelectElement)?.value || "";
@@ -535,6 +688,11 @@ class CodexCharacterEditorModal {
     if (club === "touki_gang") checkCb("touki_clubs_orgs", true);
     if (club !== "none" && club !== "osis" && club !== "kokuhou" && club !== "touki_gang") {
       checkCb("clubs", true);
+      for (const cDir of HOUSEN_CLUB_DIRECTORIES) {
+        if (club === cDir.clubKey) {
+          checkCb(cDir.id, true);
+        }
+      }
     }
   }
 
@@ -565,6 +723,27 @@ class CodexCharacterEditorModal {
     const form = document.getElementById("codexCharEditorForm") as HTMLFormElement;
     form?.reset();
 
+    // Reset tab active state to Tab 1
+    const tabBtns = document.querySelectorAll(".codex-editor-tab");
+    tabBtns.forEach((b) => {
+      b.classList.remove("active");
+      (b as HTMLElement).style.background = "var(--bg-card)";
+      (b as HTMLElement).style.color = "var(--text-muted)";
+      (b as HTMLElement).style.borderColor = "var(--border-card)";
+    });
+    const firstTab = document.querySelector('.codex-editor-tab[data-etab="tab_meta"]');
+    if (firstTab) {
+      firstTab.classList.add("active");
+      (firstTab as HTMLElement).style.background = "rgba(225,29,72,0.15)";
+      (firstTab as HTMLElement).style.color = "#fff";
+      (firstTab as HTMLElement).style.borderColor = "var(--rose-primary)";
+    }
+    document.querySelectorAll(".codex-editor-panel").forEach((p) => {
+      (p as HTMLElement).style.display = "none";
+    });
+    const metaPanel = document.getElementById("etab_tab_meta");
+    if (metaPanel) metaPanel.style.display = "block";
+
     // Default checkboxes
     document.querySelectorAll(".ed-category-cb").forEach((cb: any) => {
       cb.checked = cb.value === defaultCategoryId;
@@ -577,6 +756,7 @@ class CodexCharacterEditorModal {
     const statusEl = document.getElementById("edUploadStatus");
     if (statusEl) statusEl.textContent = "";
 
+    this.resetAvatarFraming();
     this.syncCheckboxesFromInputs();
     this.modalEl.style.display = "flex";
   }
@@ -617,6 +797,27 @@ class CodexCharacterEditorModal {
     const delBtn = document.getElementById("edDeleteCharBtn");
     if (delBtn) delBtn.style.display = "inline-flex";
 
+    // Reset tab active state to Tab 1
+    const tabBtns = document.querySelectorAll(".codex-editor-tab");
+    tabBtns.forEach((b) => {
+      b.classList.remove("active");
+      (b as HTMLElement).style.background = "var(--bg-card)";
+      (b as HTMLElement).style.color = "var(--text-muted)";
+      (b as HTMLElement).style.borderColor = "var(--border-card)";
+    });
+    const firstTab = document.querySelector('.codex-editor-tab[data-etab="tab_meta"]');
+    if (firstTab) {
+      firstTab.classList.add("active");
+      (firstTab as HTMLElement).style.background = "rgba(225,29,72,0.15)";
+      (firstTab as HTMLElement).style.color = "#fff";
+      (firstTab as HTMLElement).style.borderColor = "var(--rose-primary)";
+    }
+    document.querySelectorAll(".codex-editor-panel").forEach((p) => {
+      (p as HTMLElement).style.display = "none";
+    });
+    const metaPanel = document.getElementById("etab_tab_meta");
+    if (metaPanel) metaPanel.style.display = "block";
+
     // Populate Tab 1
     this.setVal("edCharName", identity.name || char.name || "");
     this.setVal("edCharSlug", char.slug || "");
@@ -651,6 +852,13 @@ class CodexCharacterEditorModal {
       preview.src = avatarUrl || `https://api.dicebear.com/7.x/adventurer/svg?seed=${char.slug}`;
     }
     this.setVal("edAppearanceMarkdown", appearance.raw_markdown || "");
+
+    // Load Avatar framing
+    const pos = appearance.avatar_position || {};
+    this.avatarZoom = Number(pos.zoom ?? appearance.avatar_zoom ?? 1.0);
+    this.avatarPanX = Number(pos.x ?? appearance.avatar_pos_x ?? 0);
+    this.avatarPanY = Number(pos.y ?? appearance.avatar_pos_y ?? 0);
+    this.updateAvatarTransform();
 
     // Populate Tab 3 (Stats & Vitals)
     const stats = identity.stats || char.stats || {};
@@ -813,6 +1021,12 @@ class CodexCharacterEditorModal {
             lockedHint: "Penampilan karakter belum diketahui.",
             content: {
               avatar_url: avatarUrl,
+              avatar_position: {
+                x: this.avatarPanX,
+                y: this.avatarPanY,
+                zoom: this.avatarZoom
+              },
+              avatar_transform: `scale(${this.avatarZoom}) translate(${this.avatarPanX}px, ${this.avatarPanY}px)`,
               images: avatarUrl ? [{ path: avatarUrl, caption: "ID Portrait" }] : [],
               raw_markdown: this.getVal("edAppearanceMarkdown")
             }

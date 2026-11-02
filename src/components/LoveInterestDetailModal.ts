@@ -6,6 +6,7 @@ import {
   type LoveInterestDefinition,
   type HeartMilestone
 } from "../api/loveInterests";
+import { resolvePortraitUrl, SUPABASE_STORAGE_PORTRAITS_URL } from "../api/codex";
 import type { Character, TargetSecret } from "../types";
 import { router } from "../router/router";
 import { showToast } from "./Toast";
@@ -311,15 +312,21 @@ export class LoveInterestDetailModal {
 
     // Avatar
     const avatarEl = document.getElementById("liDetailAvatar") as HTMLImageElement;
+    const targetSlug = li?.slug || t.slug || "";
+    const rawAvatar = t.avatar_url || li?.avatar_url || (targetSlug ? `/portraits/${targetSlug}.png` : "");
     const avatarSrc =
-      t.avatar_url ||
-      li?.avatar_url ||
-      `/portraits/${li?.slug || ''}.png` ||
+      resolvePortraitUrl(rawAvatar, targetSlug) ||
       `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(t.name)}`;
     if (avatarEl) {
       avatarEl.src = avatarSrc;
+      delete avatarEl.dataset.fallback;
       avatarEl.onerror = () => {
-        avatarEl.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(t.name)}`;
+        if (!avatarEl.dataset.fallback && targetSlug) {
+          avatarEl.dataset.fallback = "1";
+          avatarEl.src = `${SUPABASE_STORAGE_PORTRAITS_URL}/${targetSlug}.png`;
+        } else {
+          avatarEl.src = `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(t.name)}`;
+        }
       };
     }
 

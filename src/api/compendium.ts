@@ -295,22 +295,37 @@ export async function getCompendiumBasicActions(): Promise<BasicActionCompendium
 
     if (!error && data && data.length > 0) {
       const dbActions = data as BasicActionCompendium[];
-      const standardIds = new Set(dbActions.map(a => a.id));
-      const merged = [...dbActions];
+      const standardMap = new Map(STANDARD_COMBAT_ACTIONS.map(std => [std.id, std]));
+      const merged: BasicActionCompendium[] = [];
+
+      // Prioritize official balanced actions
       for (const std of STANDARD_COMBAT_ACTIONS) {
-        if (!standardIds.has(std.id)) {
-          merged.push({
-            id: std.id,
-            name: std.name,
-            category: std.category,
-            cost: std.cost,
-            check_type: std.check,
-            effect: std.effect,
-            description: std.description,
-            action_type: std.actionType
-          });
+        merged.push({
+          id: std.id,
+          name: std.name,
+          category: std.category,
+          cost: std.cost,
+          check_type: std.check,
+          effect: std.effect,
+          description: std.description,
+          action_type: std.actionType,
+          pros: std.pros,
+          cons: std.cons,
+          clearEffect: std.clearEffect,
+          damageDie: std.damageDie,
+          statKey: std.statKey,
+          isHeal: std.isHeal,
+          moveKind: std.moveKind
+        } as any);
+      }
+
+      // Keep any non-conflicting custom actions from DB
+      for (const a of dbActions) {
+        if (!standardMap.has(a.id) && !a.id.startsWith("action_")) {
+          merged.push(a);
         }
       }
+
       cacheBasicActions = merged;
       return cacheBasicActions;
     }
@@ -327,8 +342,15 @@ export async function getCompendiumBasicActions(): Promise<BasicActionCompendium
     check_type: ba.check,
     effect: ba.effect,
     description: ba.description,
-    action_type: ba.actionType
-  }));
+    action_type: ba.actionType,
+    pros: ba.pros,
+    cons: ba.cons,
+    clearEffect: ba.clearEffect,
+    damageDie: ba.damageDie,
+    statKey: ba.statKey,
+    isHeal: ba.isHeal,
+    moveKind: ba.moveKind
+  } as any));
   return cacheBasicActions;
 }
 

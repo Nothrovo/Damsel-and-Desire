@@ -1,5 +1,6 @@
 import { fetchDynamicLoveInterests, type LoveInterestDefinition } from "../api/loveInterests";
 import { uploadAvatar } from "../api/storage";
+import { resolvePortraitUrl, SUPABASE_STORAGE_PORTRAITS_URL } from "../api/codex";
 import { getAllLoveInterests } from "../data/loveInterestCompendium";
 import type { Character, TargetSecret } from "../types";
 import { showToast } from "./Toast";
@@ -332,7 +333,7 @@ export class AddLoveInterestModal {
     grid.innerHTML = filtered.map((li) => {
       const isSelected = this.selectedLi?.slug === li.slug;
       const isAlreadyAdded = existingNames.has(li.slug.toLowerCase()) || existingNames.has(li.name.toLowerCase());
-      const avatar = li.avatar_url || `https://api.dicebear.com/7.x/adventurer/svg?seed=${li.slug}`;
+      const avatar = resolvePortraitUrl(li.avatar_url, li.slug) || `https://api.dicebear.com/7.x/adventurer/svg?seed=${li.slug}`;
 
       return `
         <div
@@ -343,7 +344,7 @@ export class AddLoveInterestModal {
           <img
             src="${avatar}"
             alt="${escapeHtml(li.name)}"
-            onerror="this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=${li.slug}'"
+            onerror="if(!this.dataset.fallback && '${li.slug}'){this.dataset.fallback='1';this.src='${SUPABASE_STORAGE_PORTRAITS_URL}/${li.slug}.png';}else{this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=${li.slug}';}"
             style="width:42px;height:42px;border-radius:var(--radius-sm);object-fit:cover;flex-shrink:0;border:1px solid var(--border-subtle);"
           />
           <div style="flex:1;min-width:0;">

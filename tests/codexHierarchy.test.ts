@@ -135,6 +135,30 @@ describe("Codex Hierarchical Taxonomy & Multi-Category Resolution", () => {
     expect(isCharacterInSubcategory(bando, "class_1_1")).toBe(false);
   });
 
+  it("resolves specific club subdirectories under Housen (e.g. club_cooking, club_gaming, club_occult)", () => {
+    const dalDal = {
+      slug: "choi_dal_dal",
+      class_room: "11-1",
+      club: "cooking",
+      role: "Siswa Housen Academy",
+      category_id: "class_2_1"
+    };
+
+    expect(isCharacterInSubcategory(dalDal, "clubs")).toBe(true);
+    expect(isCharacterInSubcategory(dalDal, "club_cooking")).toBe(true);
+    expect(isCharacterInSubcategory(dalDal, "club_gaming")).toBe(false);
+
+    const nayu = {
+      slug: "hoshina_nayu",
+      class_room: "10-1",
+      club: "gaming",
+      role: "Siswa Housen Academy",
+      category_id: "class_1_1"
+    };
+    expect(isCharacterInSubcategory(nayu, "club_gaming")).toBe(true);
+    expect(isCharacterInSubcategory(nayu, "club_cooking")).toBe(false);
+  });
+
   it("returns all subcategories with parent associations", () => {
     const allSubs = getAllSubcategories();
     expect(allSubs.length).toBeGreaterThanOrEqual(13);

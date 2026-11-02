@@ -1,5 +1,6 @@
 import { listMyCharacters, deleteCharacter, importLegacyCharacter } from "../api/characters";
 import { supabase } from "../api/supabase";
+import { resolvePortraitUrl } from "../api/codex";
 import { exportCharacterJson, validateCharacterJson } from "../services/exporter";
 import { authStore } from "../store/authStore";
 import { renderCardSkeleton } from "../components/Skeleton";
@@ -245,7 +246,8 @@ function renderFilteredCards(query: string) {
   }
 
   gridEl.innerHTML = filtered.map((c) => {
-    const avatar = escapeHtml(c.avatar_path || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(c.name)}`);
+    const rawAvatar = c.avatar_path ? resolvePortraitUrl(c.avatar_path) : "";
+    const avatar = escapeHtml(rawAvatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(c.name)}`);
     const safeName = escapeHtml(c.name);
     const hpCur = c.vitals?.physicalHpCurrent ?? 10;
     const hpMax = c.vitals?.physicalHpMax ?? 10;
@@ -263,7 +265,7 @@ function renderFilteredCards(query: string) {
         <!-- Top Profile Row -->
         <div class="card-profile-header">
           <div class="card-avatar-wrapper">
-            <img src="${avatar}" alt="Portrait ${safeName}" class="card-avatar-img" width="56" height="56" loading="lazy">
+            <img src="${avatar}" alt="Portrait ${safeName}" class="card-avatar-img" width="56" height="56" loading="lazy" onerror="this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(safeName)}'">
             <div class="avatar-grade-pip">K${10 + (c.level - 1)}</div>
           </div>
           <div class="card-identity">

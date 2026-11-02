@@ -84,7 +84,7 @@ export const STANDARD_COMBAT_ACTIONS: CombatActionDefinition[] = [
     category: "movement",
     moveKind: "physical",
     cost: "Action",
-    check: "Physique / Agility",
+    check: "Otomatis (Tanpa Roll)",
     effect: "Gerakanmu tidak memicu Opportunity Attack selama ronde ini & +10 ft Movement",
     pros: "Mobilitas Aman: Gerakan tidak memicu Opportunity Attack dan langkah +10 ft.",
     cons: "Menggunakan seluruh Action utama tanpa menghasilkan damage.",
@@ -247,6 +247,7 @@ export function getStatModifierFromScore(score: number): number {
 }
 
 export interface MoveRollParameters {
+  hasCheck: boolean;
   checkDie: string;
   checkMod: number;
   checkLabel: string;
@@ -254,6 +255,10 @@ export interface MoveRollParameters {
   damageMod?: number;
   damageLabel?: string;
   isHeal?: boolean;
+  tacticalAction?: {
+    label: string;
+    notification: string;
+  };
 }
 
 export function resolveMoveRollParameters(
@@ -265,36 +270,66 @@ export function resolveMoveRollParameters(
   const statScore = stats[statKey] ?? 10;
   const baseStatMod = getStatModifierFromScore(statScore);
 
+  const checkStr = String(move.check || "").toLowerCase();
+  const isAutomatic =
+    checkStr.includes("otomatis") ||
+    checkStr.includes("pasif") ||
+    move.checkType === "automatic" ||
+    Boolean(move.isPassive);
+
+  const hasCheck = !isAutomatic;
   const rollBonus = move.rollBonus || 0;
   const checkMod = baseStatMod + rollBonus;
   const checkLabel = `${move.name} (Check: ${move.check || 'd20'})`;
 
-  let damageDie = move.damageDie || (move.damage && String(move.damage).match(/(\d*d\d+)/)?.[1]) || undefined;
-  if (!damageDie && move.effect && String(move.effect).match(/(\d*d\d+)/)) {
-    damageDie = String(move.effect).match(/(\d*d\d+)/)?.[1];
-  }
-  if (damageDie && damageDie.startsWith("d")) {
-    damageDie = "1" + damageDie;
-  }
-  // If no die found but move does damage (e.g. flat damage or standard)
-  if (!damageDie && (move.moveKind === "physical" || move.moveKind === "social") && !move.isHeal && move.category !== "defense" && move.category !== "movement") {
-    damageDie = "1d4";
+  let damageDie: string | undefined = undefined;
+  let tacticalAction: { label: string; notification: string } | undefined = undefined;
+
+  // Specific tactical non-damage moves
+  if (move.id === "action_dodge_guard" || move.name?.includes("Tangkis")) {
+    tacticalAction = {
+      label: "🛡️ Pasang Tangkis (+3 PAC)",
+      notification: "Memasang kuda-kuda rapat (+3 Physical Guard) sampai awal giliran berikutnya."
+    };
+  } else if (move.id === "action_disengage" || move.name?.includes("Disengage") || move.name?.includes("Kabur")) {
+    tacticalAction = {
+      label: "💨 Lakukan Disengage (+10 ft)",
+      notification: "Mundur tanpa memicu Opportunity Attack dan langkah +10 ft ronde ini."
+    };
+  } else if (move.id === "action_use_item" || move.name?.includes("Gunakan Barang")) {
+    tacticalAction = {
+      label: "🎒 Buka Tas / Item",
+      notification: "Mengambil dan menggunakan item konsumsi dari tas sekolah."
+    };
+  } else if (move.id === "action_shove" || move.name?.includes("Dorongan")) {
+    // Pure contest, no damage die
+    damageDie = undefined;
+  } else {
+    damageDie = move.damageDie || (move.damage && String(move.damage).match(/(\d*d\d+)/)?.[1]) || undefined;
+    if (!damageDie && move.effect && String(move.effect).match(/(\d*d\d+)/)) {
+      damageDie = String(move.effect).match(/(\d*d\d+)/)?.[1];
+    }
+    if (damageDie && damageDie.startsWith("d")) {
+      damageDie = "1" + damageDie;
+    }
   }
 
-  const damageMod = move.id === "action_shove" ? 0 : baseStatMod;
+  const damageMod = baseStatMod;
   const damageDieClean = damageDie ? damageDie.replace(/^1/, "") : undefined;
   const damageLabel = move.isHeal
     ? `Pemulihan: ${move.name}`
     : `Damage/Efek: ${move.name}`;
 
   return {
+    hasCheck,
     checkDie: "d20",
     checkMod,
     checkLabel,
     damageDie: damageDieClean,
     damageMod,
     damageLabel,
-    isHeal: Boolean(move.isHeal)
+    isHeal: Boolean(move.isHeal),
+    tacticalAction
   };
 }
 

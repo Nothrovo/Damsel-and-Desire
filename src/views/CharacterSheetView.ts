@@ -44,6 +44,7 @@ import { featPickerModal } from "../components/FeatPickerModal";
 import { achievementAwardModal } from "../components/AchievementAwardModal";
 import { addLoveInterestModal } from "../components/AddLoveInterestModal";
 import { loveInterestDetailModal } from "../components/LoveInterestDetailModal";
+import { resolvePortraitUrl, SUPABASE_STORAGE_PORTRAITS_URL } from "../api/codex";
 import {
   findLoveInterestByName,
   getLoveInterestBySlug,
@@ -1172,12 +1173,25 @@ function renderMovesList(char: Character, filter: string): string {
 
         ${!m.isLocked ? `
           <div class="move-card-actions-bar" style="margin-top:0.6rem;padding-top:0.5rem;border-top:1px dashed var(--border-subtle);display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-            <button type="button" class="btn btn-xs btn-move-roll-check" data-move-idx="${idx}" style="background:rgba(245,158,11,0.12);border:1px solid var(--amber-gold);color:var(--amber-gold);font-weight:700;display:inline-flex;align-items:center;gap:4px;border-radius:var(--radius-sm);padding:3px 8px;cursor:pointer;">
-              <span>🎲 Check (${rollParams.checkMod >= 0 ? '+' : ''}${rollParams.checkMod})</span>
-            </button>
+            ${rollParams.hasCheck ? `
+              <button type="button" class="btn btn-xs btn-move-roll-check" data-move-idx="${idx}" style="background:rgba(245,158,11,0.12);border:1px solid var(--amber-gold);color:var(--amber-gold);font-weight:700;display:inline-flex;align-items:center;gap:4px;border-radius:var(--radius-sm);padding:3px 8px;cursor:pointer;">
+                <span>🎲 Check d20 (${rollParams.checkMod >= 0 ? '+' : ''}${rollParams.checkMod})</span>
+              </button>
+            ` : `
+              <span class="badge" style="background:rgba(255,255,255,0.06);color:var(--text-muted);font-size:0.68rem;padding:3px 8px;border-radius:4px;border:1px solid var(--border-subtle);">
+                ✓ Check Otomatis
+              </span>
+            `}
+
             ${rollParams.damageDie ? `
               <button type="button" class="btn btn-xs btn-move-roll-damage" data-move-idx="${idx}" style="background:${rollParams.isHeal ? 'rgba(244,114,182,0.15)' : 'rgba(225,29,72,0.15)'};border:1px solid ${rollParams.isHeal ? '#f472b6' : 'var(--rose-primary)'};color:${rollParams.isHeal ? '#f472b6' : 'var(--rose-light)'};font-weight:700;display:inline-flex;align-items:center;gap:4px;border-radius:var(--radius-sm);padding:3px 8px;cursor:pointer;">
-                <span>${rollParams.isHeal ? '💖 Pulihkan' : '💥 Roll'}: ${rollParams.damageDie}${rollParams.damageMod ? (rollParams.damageMod >= 0 ? '+' + rollParams.damageMod : rollParams.damageMod) : ''}</span>
+                <span>${rollParams.isHeal ? '💖 Pulihkan' : '💥 Damage'}: ${rollParams.damageDie}${rollParams.damageMod ? (rollParams.damageMod >= 0 ? '+' + rollParams.damageMod : rollParams.damageMod) : ''}</span>
+              </button>
+            ` : ''}
+
+            ${rollParams.tacticalAction ? `
+              <button type="button" class="btn btn-xs btn-move-tactical-action" data-move-idx="${idx}" style="background:rgba(139,92,246,0.15);border:1px solid #8b5cf6;color:#c4b5fd;font-weight:700;display:inline-flex;align-items:center;gap:4px;border-radius:var(--radius-sm);padding:3px 8px;cursor:pointer;">
+                <span>${rollParams.tacticalAction.label}</span>
               </button>
             ` : ''}
           </div>
@@ -1338,10 +1352,10 @@ function renderTargetsList(char: Character): string {
 
   return targets.map((t, idx) => {
     const li = (t.slug ? getLoveInterestBySlug(t.slug) : null) || findLoveInterestByName(t.name);
+    const targetSlug = t.slug || li?.slug || "";
+    const rawAvatar = t.avatar_url || li?.avatar_url || (targetSlug ? `/portraits/${targetSlug}.png` : "");
     const avatarUrl =
-      t.avatar_url ||
-      li?.avatar_url ||
-      `/portraits/${li?.slug || ''}.png` ||
+      resolvePortraitUrl(rawAvatar, targetSlug) ||
       `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(t.name)}`;
     const currentMilestone = li ? getCurrentMilestone(li, t.affection || 1) : null;
     const milestoneTitle = currentMilestone ? currentMilestone.title : null;
@@ -1360,7 +1374,7 @@ function renderTargetsList(char: Character): string {
             src="${avatarUrl}"
             alt="${escapeHtml(t.name)}"
             class="target-card-avatar"
-            onerror="this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(t.name)}'"
+            onerror="if(!this.dataset.fallback && '${targetSlug}'){this.dataset.fallback='1';this.src='${SUPABASE_STORAGE_PORTRAITS_URL}/${targetSlug}.png';}else{this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(t.name)}';}"
           />
           ${(t.class_room || li?.class_room) ? `<span class="target-card-class-badge">${escapeHtml(t.class_room || li!.class_room)}</span>` : ''}
         </div>
@@ -1674,6 +1688,14 @@ function attachMoveCardEvents(container: HTMLElement, char: Character) {
       e.stopPropagation();
       if (rollParams.damageDie) {
         diceRollerModal.show(rollParams.damageDie, rollParams.damageMod || 0, rollParams.damageLabel || move.name);
+      }
+    });
+
+    // Tactical action button
+    card.querySelector(".btn-move-tactical-action")?.addEventListener("click", (e: Event) => {
+      e.stopPropagation();
+      if (rollParams.tacticalAction) {
+        showToast(rollParams.tacticalAction.notification, "info");
       }
     });
 

@@ -8,10 +8,12 @@ import {
   dmBatchSetTier,
   dmBatchLockAll,
   resolvePortraitUrl,
+  SUPABASE_STORAGE_PORTRAITS_URL,
   CODEX_HIERARCHY,
   getAllSubcategories,
   isCharacterInSubcategory,
-  resolveCharacterAffiliations
+  resolveCharacterAffiliations,
+  HOUSEN_CLUB_DIRECTORIES
 } from "../api/codex";
 import { dmAuthStore } from "../store/dmAuthStore";
 import { dmAuthModal } from "../components/DmAuthModal";
@@ -178,22 +180,58 @@ async function loadCategoryData(categoryId: string, _silent: boolean = false) {
     </div>
   ` : "";
 
+  const isMainClubsHub = categoryId === "clubs";
+  const isSpecificClub = categoryId.startsWith("club_");
+
   if (headerContainer) {
     headerContainer.innerHTML = `
       <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--amber-gold);font-weight:700;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.04em;">
         <span>${parentName}</span>
         <span>›</span>
+        ${isSpecificClub ? `
+          <a href="/codex/clubs" style="color:var(--text-muted);text-decoration:none;">Klub Ekstrakurikuler</a>
+          <span>›</span>
+        ` : ''}
         <span>${displayName}</span>
       </div>
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:0.5rem;">
         <h1 style="font-family:var(--font-heading);font-size:2rem;color:var(--text-main);margin:0;">
           ${subMeta?.icon ? subMeta.icon + ' ' : ''}${displayName}
         </h1>
+        ${isSpecificClub ? `
+          <a href="/codex/clubs" class="btn btn-xs btn-secondary" style="text-decoration:none;border-radius:var(--radius-full);padding:3px 10px;">
+            ← Direktori Ekskul
+          </a>
+        ` : ''}
       </div>
       <p style="color:var(--text-muted);font-size:0.9rem;margin:0;max-width:750px;line-height:1.5;">
         ${displayDesc || "Daftar murid dan tokoh di kategori ini."}
       </p>
       ${siblingPillsHtml}
+
+      ${isMainClubsHub ? `
+        <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px dashed var(--border-subtle);">
+          <strong style="color:var(--amber-gold);font-size:0.9rem;display:block;margin-bottom:0.75rem;">
+            🏆 Pilih Sub-Direktori Klub Ekstrakurikuler:
+          </strong>
+          <div class="codex-clubs-directory-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:0.85rem;">
+            ${HOUSEN_CLUB_DIRECTORIES.map(cd => {
+              return `
+                <a href="/codex/${cd.id}" style="text-decoration:none;background:var(--bg-card);border:1px solid var(--border-card);border-radius:var(--radius-md);padding:0.85rem 1rem;display:flex;align-items:center;justify-content:space-between;transition:all 0.2s ease;">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:1.3rem;">${cd.icon}</span>
+                    <div>
+                      <strong style="color:var(--text-main);font-size:0.88rem;display:block;">${cd.name.split('(')[0].trim()}</strong>
+                      <span style="font-size:0.75rem;color:var(--text-muted);">${cd.description.slice(0, 42)}...</span>
+                    </div>
+                  </div>
+                  <span style="color:var(--amber-gold);font-weight:700;font-size:0.8rem;">→</span>
+                </a>
+              `;
+            }).join("")}
+          </div>
+        </div>
+      ` : ''}
     `;
   }
 
@@ -455,7 +493,7 @@ function renderCards(cards: any[], isDmActive: boolean, currentCategoryId: strin
 
         <!-- Image & Badges -->
         <div style="position:relative;height:240px;background:#0d111a;overflow:hidden;">
-          <img src="${avatar}" alt="${c.name || 'Avatar'}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s ease;" class="card-portrait" onerror="if(!this.dataset.fallback){this.dataset.fallback='1';this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=${c.slug || c.id}';}" />
+          <img src="${avatar}" alt="${c.name || 'Avatar'}" style="width:100%;height:100%;object-fit:cover;transition:transform 0.3s ease;${(c as any).avatar_transform ? `transform:${(c as any).avatar_transform};transform-origin:center center;` : ''}" class="card-portrait" onerror="if(!this.dataset.fallback && '${c.slug || ''}'){this.dataset.fallback='1';this.src='${SUPABASE_STORAGE_PORTRAITS_URL}/${c.slug}.png';}else{this.src='https://api.dicebear.com/7.x/adventurer/svg?seed=${c.slug || c.id}';}" />
           <div style="position:absolute;inset:0;background:linear-gradient(to top, rgba(17,24,39,0.95) 0%, rgba(17,24,39,0.1) 60%, transparent 100%);"></div>
 
           <!-- Top Badges -->

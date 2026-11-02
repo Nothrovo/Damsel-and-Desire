@@ -1,0 +1,28 @@
+name: Supabase Health Keepalive
+
+on:
+  schedule:
+    # Run every 3 days at 04:00 UTC (11:00 WIB) to prevent Supabase Free Tier auto-pause
+    - cron: '0 4 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        env:
+          SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL || 'https://oavkhnjigdqacvqfkzpf.supabase.co' }}
+          SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_M_ZCTbtu0UYlfiAyLON_2Q_jYWHAiPI' }}
+        run: |
+          echo "Sending keepalive heartbeat to Supabase instance..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: ${SUPABASE_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_KEY}" \
+            "${SUPABASE_URL}/rest/v1/school_calendar_state?select=count")
+          echo "HTTP response status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "::warning ::Supabase keepalive ping returned status $HTTP_STATUS"
+          else
+            echo "✓ Supabase database is active and responsive."
+          fi

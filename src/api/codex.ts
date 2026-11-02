@@ -66,27 +66,96 @@ function getCanonNpcByIdOrSlug(idOrSlug: string) {
 
 export const SUPABASE_STORAGE_PORTRAITS_URL = "https://oavkhnjigdqacvqfkzpf.supabase.co/storage/v1/object/public/codex-assets/portraits";
 
+export const BUNDLED_PORTRAIT_SLUGS = new Set<string>([
+  "alisa_mikhailovna",
+  "asahina_tenka",
+  "choi_dal_dal",
+  "hasumi_chihiro",
+  "hatsushiba_miku",
+  "hoshina_nayu",
+  "kanzaki_takeru",
+  "kanzawa_ryuuji",
+  "kazuki_ren",
+  "kirishima_iori",
+  "kisaragi_setsuna",
+  "kujou_reiko",
+  "kumada_riki",
+  "kurogane_tetsuo",
+  "kurokawa_shiori",
+  "mawatari_bando",
+  "miruam_solari",
+  "momoi_yuzu",
+  "onizuka_gouki",
+  "ouga_tesshin",
+  "saegusa_koharu",
+  "saionji_kaede",
+  "samejima_ren",
+  "sendou_airi",
+  "shinohara_kotone",
+  "shiranui_mei",
+  "tachibana_rin",
+  "tahagusa_kazugumi",
+  "takamine_ryo",
+  "tsukishima_fumiko",
+  "vesna_strivozha",
+  "wakaba_hinata"
+]);
+
+export function getAppBaseUrl(): string {
+  let base = "/";
+  try {
+    if (typeof import.meta !== "undefined" && import.meta?.env?.BASE_URL) {
+      base = import.meta.env.BASE_URL;
+    }
+  } catch {
+    base = "/";
+  }
+  return base.endsWith("/") ? base : `${base}/`;
+}
+
+export function getLocalPortraitUrl(filenameOrSlug: string): string {
+  const clean = filenameOrSlug.replace(/^\/?portraits\//, "").replace(/\.png$/i, "");
+  return `${getAppBaseUrl()}portraits/${clean}.png`;
+}
+
 export function resolvePortraitUrl(rawUrl?: string | null, slug?: string): string {
-  if (!rawUrl && !slug) {
+  const trimmedUrl = (rawUrl || "").trim();
+  const trimmedSlug = (slug || "").trim();
+
+  if (!trimmedUrl && !trimmedSlug) {
     return "";
   }
 
-  // 1. If rawUrl is empty or DiceBear, fallback to Supabase Storage if slug is provided
-  if (!rawUrl || rawUrl.includes("dicebear")) {
-    if (slug) {
-      return `${SUPABASE_STORAGE_PORTRAITS_URL}/${slug}.png`;
+  // 1. If absolute URL
+  if (/^(https?:|data:|\/\/)/i.test(trimmedUrl)) {
+    // If it's a DiceBear placeholder and we have a local bundled portrait for this slug, prefer bundled!
+    if (trimmedUrl.includes("dicebear") && trimmedSlug && BUNDLED_PORTRAIT_SLUGS.has(trimmedSlug)) {
+      return getLocalPortraitUrl(trimmedSlug);
     }
-    return rawUrl || "";
+    return trimmedUrl;
   }
 
-  // 2. If rawUrl is relative (/portraits/... or portraits/...)
-  if (rawUrl.startsWith("/portraits/") || rawUrl.startsWith("portraits/")) {
-    const filename = rawUrl.replace(/^\/?portraits\//, "");
-    return `${SUPABASE_STORAGE_PORTRAITS_URL}/${filename}`;
+  // 2. If relative portrait path (/portraits/... or portraits/...)
+  if (trimmedUrl.startsWith("/portraits/") || trimmedUrl.startsWith("portraits/")) {
+    const filename = trimmedUrl.replace(/^\/?portraits\//, "");
+    return getLocalPortraitUrl(filename);
   }
 
-  // 3. Absolute URL
-  return rawUrl;
+  // 3. Other relative root paths
+  if (trimmedUrl.startsWith("/")) {
+    return `${getAppBaseUrl()}${trimmedUrl.slice(1)}`;
+  }
+
+  // 4. If rawUrl is empty or placeholder, but valid slug is provided
+  if (trimmedSlug) {
+    if (BUNDLED_PORTRAIT_SLUGS.has(trimmedSlug)) {
+      return getLocalPortraitUrl(trimmedSlug);
+    }
+    // Return Supabase Storage URL as secondary or empty if not bundled
+    return `${getAppBaseUrl()}portraits/${trimmedSlug}.png`;
+  }
+
+  return trimmedUrl;
 }
 
 function buildCanonCard(npc: any, revealedSections: string[]): CodexCharacterCard | null {
@@ -196,6 +265,33 @@ export const DEFAULT_CODEX_CATEGORIES: CodexCategory[] = [
   { id: "other", name: "Lainnya", description: "Karakter pendukung lainnya", sort_order: 13, show_totals: false, default_visibility_mode: "placeholder" }
 ];
 
+export interface CodexClubDirectory {
+  id: string;
+  clubKey: string;
+  name: string;
+  icon: string;
+  description: string;
+}
+
+export const HOUSEN_CLUB_DIRECTORIES: CodexClubDirectory[] = [
+  { id: "club_cooking", clubKey: "cooking", name: "Klub Tata Boga (Cooking)", icon: "🍳", description: "Kreasi kuliner, bento manis, dan manajemen nutrisi siswa." },
+  { id: "club_gaming", clubKey: "gaming", name: "Klub Gaming & Esports", icon: "🎮", description: "Turnamen game retro/modern, strategi taktis, dan lab game." },
+  { id: "club_occult", clubKey: "occult", name: "Klub Okultisme & Misteri", icon: "🔮", description: "Riset legenda urban Kredon, ramalan kartu tarot, dan fenomena aneh." },
+  { id: "club_taekwondo", clubKey: "taekwondo", name: "Klub Taekwondo & Bela Diri", icon: "🥋", description: "Latihan fisik tanding, tendangan akrobatik, dan pertahanan diri." },
+  { id: "club_fencing", clubKey: "fencing", name: "Klub Anggar (Fencing)", icon: "🤺", description: "Seni pedang anggar foil & épée, kecepatan refleks, dan disiplin elegan." },
+  { id: "club_kendo", clubKey: "kendo", name: "Klub Kendo & Pedang", icon: "🎋", description: "Semangat bushido tradisional, ayunan pedang bambu shinai, dan ketenangan batin." },
+  { id: "club_art", clubKey: "art", name: "Klub Seni Rupa & Manga", icon: "🎨", description: "Ilustrasi manga, kanvas lukis air, dan pameran seni akademi." },
+  { id: "club_music", clubKey: "music", name: "Klub Musik & Band", icon: "🎸", description: "Latihan vokal, instrumen band rock, aransemen lagu festival sekolah." },
+  { id: "club_photography", clubKey: "photography", name: "Klub Fotografi", icon: "📷", description: "Kamera analog & digital, mengabadikan momen keseharian siswa." },
+  { id: "club_volleyball", clubKey: "volleyball", name: "Klub Bola Voli", icon: "🏐", description: "Smash tajam, kekompakan tim, dan laga persahabatan antar sekolah." },
+  { id: "club_athletics", clubKey: "athletics", name: "Klub Atletik & Lari", icon: "🏃", description: "Lari cepat sprint, maraton lintasan, dan stamina fisik prima." },
+  { id: "club_badminton", clubKey: "badminton", name: "Klub Bulutangkis", icon: "🏸", description: "Kecepatan reli bulutangkis, smash tajam, dan ketangkasan lapangan." },
+  { id: "club_swimming", clubKey: "swimming", name: "Klub Renang", icon: "🏊", description: "Kecepatan gaya bebas & dada di kolam renang indoor Housen." },
+  { id: "club_tea", clubKey: "tea", name: "Klub Upacara Teh (Sadou)", icon: "🍵", description: "Seni tradisi upacara teh Jepang, ketenangan jiwa, dan etika santun." },
+  { id: "club_literature", clubKey: "literature", name: "Klub Sastra & Buku", icon: "📚", description: "Apresiasi puisi, novel klasik, dan perpustakaan rahasia sekolah." },
+  { id: "club_science", clubKey: "science", name: "Klub Sains & Kimia", icon: "🧪", description: "Eksperimen laboratorium kimia, sains terapan, dan kembang api festival." }
+];
+
 export const CODEX_HIERARCHY: CodexRootGroup[] = [
   {
     id: "housen",
@@ -213,9 +309,19 @@ export const CODEX_HIERARCHY: CodexRootGroup[] = [
       { id: "class_3_2", parentGroupId: "housen", name: "Kelas 12-2", shortLabel: "12-2", description: "Siswa-siswi tahun ketiga kelas 12-2 (Grade 12 / Senior)", icon: "👔", sort_order: 6, folderCategory: "class" },
       { id: "osis", parentGroupId: "housen", name: "Presidium OSIS & Komite Disiplin", shortLabel: "OSIS", description: "Jajaran pimpinan dewan siswa dan komite ketertiban", icon: "👑", sort_order: 7, folderCategory: "club_org" },
       { id: "kokuhou", parentGroupId: "housen", name: "Geng Berandal Kokuhou (黒鳳)", shortLabel: "Kokuhou", description: "Aliansi berandal pelindung belakang sekolah dan wilayah Housen", icon: "🦅", sort_order: 8, folderCategory: "club_org" },
-      { id: "clubs", parentGroupId: "housen", name: "Klub Ekstrakurikuler", shortLabel: "Ekskul", description: "Seluruh anggota dan ketua 16 klub ekskul Housen", icon: "🏆", sort_order: 9, folderCategory: "club_org" },
-      { id: "faculty", parentGroupId: "housen", name: "Dewan Guru & Staf", shortLabel: "Guru & Staf", description: "Pengajar, staf konseling, kepala sekolah, dan dokter UKS", icon: "🏛️", sort_order: 10, folderCategory: "faculty" },
-      { id: "housen_alumni", parentGroupId: "housen", name: "Alumni Housen", shortLabel: "Alumni Housen", description: "Tokoh lulusan legendaris dan mantan berandal Housen", icon: "📜", sort_order: 11, folderCategory: "alumni" }
+      { id: "clubs", parentGroupId: "housen", name: "Klub Ekstrakurikuler", shortLabel: "Ekskul", description: "Hub direktori seluruh 16 klub ekskul Housen", icon: "🏆", sort_order: 9, folderCategory: "club_org" },
+      ...HOUSEN_CLUB_DIRECTORIES.map((cd, idx) => ({
+        id: cd.id,
+        parentGroupId: "housen" as const,
+        name: cd.name,
+        shortLabel: cd.name.split("(")[0].trim(),
+        description: cd.description,
+        icon: cd.icon,
+        sort_order: 10 + idx,
+        folderCategory: "club_org" as const
+      })),
+      { id: "faculty", parentGroupId: "housen", name: "Dewan Guru & Staf", shortLabel: "Guru & Staf", description: "Pengajar, staf konseling, kepala sekolah, dan dokter UKS", icon: "🏛️", sort_order: 30, folderCategory: "faculty" },
+      { id: "housen_alumni", parentGroupId: "housen", name: "Alumni Housen", shortLabel: "Alumni Housen", description: "Tokoh lulusan legendaris dan mantan berandal Housen", icon: "📜", sort_order: 31, folderCategory: "alumni" }
     ]
   },
   {
@@ -305,10 +411,15 @@ export function resolveCharacterAffiliations(char: any): string[] {
     tags.add("kokuhou");
   }
 
-  // Ekskul (General Clubs)
+  // Ekskul (General Clubs & Specific Subdirectories)
   const isSpecialOrg = club === "osis" || club === "kokuhou" || club === "touki_gang";
   if (club && club !== "none" && club !== "tidak ada" && club !== "outside" && !isSpecialOrg) {
     tags.add("clubs");
+    for (const cDir of HOUSEN_CLUB_DIRECTORIES) {
+      if (club === cDir.clubKey || club.includes(cDir.clubKey) || role.includes(cDir.clubKey)) {
+        tags.add(cDir.id);
+      }
+    }
   }
 
   // Faculty

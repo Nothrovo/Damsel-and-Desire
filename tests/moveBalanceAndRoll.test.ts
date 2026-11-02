@@ -76,4 +76,33 @@ describe("Move Balancing, Tactical Pros/Cons & Effect Ambiguity Elimination", ()
     expect(supportParams.damageDie).toBe("d4");
     expect(supportParams.damageMod).toBe(1); // +1 Mind
   });
+
+  it("never provides roll damage or check buttons for automatic or non-damaging passive moves", () => {
+    const mockStats = { physique: 10, intelligent: 10, looks: 10, mind: 10, talent: 10, luck: 10 };
+
+    const guard = STANDARD_COMBAT_ACTIONS.find((m) => m.id === "action_dodge_guard")!;
+    const guardParams = resolveMoveRollParameters(guard, mockStats);
+    expect(guardParams.hasCheck).toBe(false);
+    expect(guardParams.damageDie).toBeUndefined();
+    expect(guardParams.tacticalAction).toBeDefined();
+
+    const disengage = STANDARD_COMBAT_ACTIONS.find((m) => m.id === "action_disengage")!;
+    const disengageParams = resolveMoveRollParameters(disengage, mockStats);
+    expect(disengageParams.hasCheck).toBe(false);
+    expect(disengageParams.damageDie).toBeUndefined();
+    expect(disengageParams.tacticalAction).toBeDefined();
+
+    const shove = STANDARD_COMBAT_ACTIONS.find((m) => m.id === "action_shove")!;
+    const shoveParams = resolveMoveRollParameters(shove, mockStats);
+    expect(shoveParams.hasCheck).toBe(true);
+    expect(shoveParams.damageDie).toBeUndefined(); // Pure tactical shove, no damage roll!
+  });
+
+  it("guarantees no move has an empty effect (dash or empty string)", () => {
+    for (const move of STANDARD_COMBAT_ACTIONS) {
+      expect(move.effect).toBeTruthy();
+      expect(move.effect.trim()).not.toBe("—");
+      expect(move.effect.trim()).not.toBe("-");
+    }
+  });
 });
