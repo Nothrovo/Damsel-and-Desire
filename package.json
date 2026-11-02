@@ -10,6 +10,7 @@
     "build": "tsc && vite build && cp dist/index.html dist/404.html && node scripts/buildStandaloneHandbook.js",
     "preview": "vite preview",
     "test": "vitest run",
+    "supabase:keepalive": "python3 scripts/supabaseKeepalive.py",
     "codex:validate": "node scripts/validateCodex.js",
     "codex:import": "node scripts/importCodex.js"
   },
