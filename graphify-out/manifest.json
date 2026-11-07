@@ -18,10 +18,10 @@
     "semantic_hash": "c38feb9475350d2ebd59a5a69943cf26"
   },
   "package.json": {
-    "mtime": 1791477906.830853,
-    "seen": 1791967754.3210335,
-    "ast_hash": "01559ccd8248f3fdbfe561722b985093",
-    "semantic_hash": "01559ccd8248f3fdbfe561722b985093"
+    "mtime": 1793585101.479745,
+    "seen": 1794023582.2268374,
+    "ast_hash": "1a7dc88debf46a0b3d122510d066e339",
+    "semantic_hash": ""
   },
   "scripts/buildLoveInterests.js": {
     "mtime": 1792084791.557299,
@@ -60,9 +60,9 @@
     "semantic_hash": ""
   },
   "src/api/auth.ts": {
-    "mtime": 1792472933.6888237,
-    "seen": 1792480165.3525038,
-    "ast_hash": "d9768508c9c424047abad8164daadbd2",
+    "mtime": 1794022546.957156,
+    "seen": 1794023582.2268643,
+    "ast_hash": "1c355988b24395b8d82f7751a48db31e",
     "semantic_hash": ""
   },
   "src/api/calendar.ts": {
@@ -432,9 +432,9 @@
     "semantic_hash": "10bd961145a31219dd7fb2f5da6c3203"
   },
   "src/router/router.ts": {
-    "mtime": 1792479988.6385078,
-    "seen": 1792480165.352798,
-    "ast_hash": "d41f3823f72507a591533429fe072aa3",
+    "mtime": 1794022513.3075242,
+    "seen": 1794023582.227009,
+    "ast_hash": "f94f4a1ecf22887417d0219f014ce016",
     "semantic_hash": ""
   },
   "src/rules/combatActions.ts": {
@@ -702,10 +702,10 @@
     "semantic_hash": "6411d2fbb5f0e00aaff0ca0ded84e0b6"
   },
   "vite.config.ts": {
-    "mtime": 1791394481.3621254,
-    "seen": 1791967754.3216522,
-    "ast_hash": "f47749c9aed700eb7e5d6ec8a2885704",
-    "semantic_hash": "f47749c9aed700eb7e5d6ec8a2885704"
+    "mtime": 1794022489.316631,
+    "seen": 1794023582.2272658,
+    "ast_hash": "7f7e4b2afa69be88141705fa5e9c84b6",
+    "semantic_hash": ""
   },
   "supabase/all_migrations_combined.sql": {
     "mtime": 1792477405.5905142,
@@ -876,8 +876,8 @@
     "semantic_hash": ""
   },
   "PLAYERS_HANDBOOK.html": {
-    "mtime": 1793583900.7346473,
-    "seen": 1793584648.8128526,
+    "mtime": 1794022585.851024,
+    "seen": 1794023582.2272882,
     "ast_hash": "86ec8b2f4b78da06b57a4591b5c617ac",
     "semantic_hash": ""
   },
@@ -1296,9 +1296,9 @@
     "semantic_hash": ""
   },
   "src/router/routeAccess.ts": {
-    "mtime": 1792480044.1103694,
-    "seen": 1792480165.352794,
-    "ast_hash": "0c3e811e64a523e855c8fd3476e05cb5",
+    "mtime": 1794022504.230332,
+    "seen": 1794023582.2270067,
+    "ast_hash": "1458fd0fb3f7145dcc1d940b19e31fd3",
     "semantic_hash": ""
   },
   "src/utils/escapeHtml.ts": {
@@ -1347,6 +1347,18 @@
     "mtime": 1793584635.4072695,
     "seen": 1793584648.8128126,
     "ast_hash": "d312f87ef523f0c304c4eb390eb2848c",
+    "semantic_hash": ""
+  },
+  "scripts/supabaseKeepalive.py": {
+    "mtime": 1793585087.3039498,
+    "seen": 1794023582.2268522,
+    "ast_hash": "b6b1d55e6732a3de6c11fe194cd31849",
+    "semantic_hash": ""
+  },
+  "tests/routerBasePath.test.ts": {
+    "mtime": 1794020140.7255533,
+    "seen": 1794023582.2272325,
+    "ast_hash": "a9810453ef2ef72be525b9fa64f31322",
     "semantic_hash": ""
   }
 }

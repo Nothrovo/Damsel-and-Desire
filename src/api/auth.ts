@@ -9,7 +9,7 @@ export async function signInWithOtp(email: string) {
       emailRedirectTo: buildAuthCallbackUrl(
         new URLSearchParams(window.location.search).get("redirect") || "/",
         window.location.origin,
-        window.location.pathname.startsWith("/damsel-and-desire") ? "/damsel-and-desire" : ""
+        window.location.pathname.toLowerCase().startsWith("/damsel-and-desire") ? "/Damsel-and-Desire" : ""
       )
     }
   });
@@ -24,7 +24,7 @@ export async function signInWithOAuth(provider: 'google') {
       redirectTo: buildAuthCallbackUrl(
         new URLSearchParams(window.location.search).get("redirect") || "/",
         window.location.origin,
-        window.location.pathname.startsWith("/damsel-and-desire") ? "/damsel-and-desire" : ""
+        window.location.pathname.toLowerCase().startsWith("/damsel-and-desire") ? "/Damsel-and-Desire" : ""
       )
     }
   });

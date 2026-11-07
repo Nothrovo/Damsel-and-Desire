@@ -3,7 +3,7 @@ import path from "path";
 
 export default defineConfig(({ mode }) => {
   return {
-    base: mode === "development" ? "/" : "/damsel-and-desire/",
+    base: mode === "development" ? "/" : "/Damsel-and-Desire/",
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src")

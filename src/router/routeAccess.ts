@@ -17,8 +17,12 @@ export function resolveInternalRedirect(target: string, basePath = ""): string {
     const resolved = new URL(target, "https://damsel.invalid");
     if (resolved.origin !== "https://damsel.invalid") return "/";
     let pathname = resolved.pathname;
-    if (base && (pathname === base || pathname.startsWith(`${base}/`))) {
-      pathname = pathname.slice(base.length) || "/";
+    if (base) {
+      const lowerPath = pathname.toLowerCase();
+      const lowerBase = base.toLowerCase();
+      if (lowerPath === lowerBase || lowerPath.startsWith(`${lowerBase}/`)) {
+        pathname = pathname.slice(base.length) || "/";
+      }
     }
     if (!pathname.startsWith("/") || pathname.startsWith("//")) return "/";
     return `${pathname}${resolved.search}${resolved.hash}`;

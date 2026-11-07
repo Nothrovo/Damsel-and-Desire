@@ -21,8 +21,8 @@ class Router {
 
   private getBasePath(): string {
     const path = window.location.pathname;
-    if (path.startsWith("/damsel-and-desire")) {
-      return "/damsel-and-desire";
+    if (path.toLowerCase().startsWith("/damsel-and-desire")) {
+      return "/Damsel-and-Desire";
     }
     return "";
   }
@@ -31,7 +31,7 @@ class Router {
     const base = this.getBasePath();
     const [pathPart, searchPart] = fullPath.split("?");
     let stripped = pathPart;
-    if (base && pathPart.startsWith(base)) {
+    if (base && pathPart.toLowerCase().startsWith(base.toLowerCase())) {
       stripped = pathPart.slice(base.length);
       stripped = stripped ? (stripped.startsWith("/") ? stripped : `/${stripped}`) : "/";
     }
