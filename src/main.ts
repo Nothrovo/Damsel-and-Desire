@@ -18,6 +18,7 @@ import { renderHandbookView } from "./views/HandbookView";
 import { renderSettingsView } from "./views/SettingsView";
 import { renderMapView } from "./views/MapView";
 import { renderCalendarView } from "./views/CalendarView";
+import { renderPersonaView } from "./views/PersonaView";
 import { renderNotFoundView } from "./views/NotFoundView";
 import { renderCodexCatalogView } from "./views/CodexCatalogView";
 import { renderCodexCategoryView } from "./views/CodexCategoryView";
@@ -25,6 +26,10 @@ import { renderCodexDetailView } from "./views/CodexDetailView";
 import { dmAuthModal } from "./components/DmAuthModal";
 import { dmRevealHistoryModal } from "./components/DmRevealHistoryModal";
 import { codexCharacterEditorModal } from "./components/CodexCharacterEditorModal";
+import { personaWizardModal } from "./components/PersonaWizardModal";
+import { allOutAttackModal } from "./components/AllOutAttackModal";
+import { personaTransitionOverlay } from "./components/PersonaTransitionOverlay";
+import { personaAudio } from "./utils/personaAudio";
 import { dmAuthStore } from "./store/dmAuthStore";
 
 function mountGlobalShell() {
@@ -56,6 +61,9 @@ function mountGlobalShell() {
       ${codexCharacterEditorModal.render()}
       ${slideOverDrawer.render()}
       ${quickVitalsPopover.render()}
+      ${personaWizardModal.render()}
+      ${allOutAttackModal.render()}
+      ${personaTransitionOverlay.render()}
     `;
     diceRollerModal.attachEvents();
     savingsModal.attachEvents();
@@ -68,6 +76,9 @@ function mountGlobalShell() {
     codexCharacterEditorModal.attachEvents();
     slideOverDrawer.attachEvents();
     quickVitalsPopover.attachEvents();
+    personaWizardModal.attachEvents();
+    allOutAttackModal.attachEvents();
+    personaTransitionOverlay.attachEvents();
   }
 }
 
@@ -93,12 +104,19 @@ function initApp() {
     .register("/handbook", renderHandbookView)
     .register("/map", renderMapView)
     .register("/calendar", renderCalendarView)
+    .register("/persona", renderPersonaView)
     .register("/settings", renderSettingsView)
     .setNotFound(renderNotFoundView);
 
-  // Update navbar active state on route changes
+  // Update navbar active state, clean up Metaverse bleed & sync Persona BGM on route changes
   router.onRouteChange((path) => {
     updateNavbarActive(path);
+    document.body.classList.remove("persona-metaverse-active");
+    if (path === "/persona") {
+      void personaAudio.play("leblanc");
+    } else {
+      personaAudio.stop();
+    }
   });
 
   // Initialize Router

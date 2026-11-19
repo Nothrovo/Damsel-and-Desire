@@ -38,6 +38,10 @@ import { slideOverDrawer } from "../components/SlideOverDrawer";
 import { quickVitalsPopover } from "../components/QuickVitalsPopover";
 import { getItemDetails } from "../data/itemCompendium";
 import { levelUpWizardModal } from "../components/LevelUpWizardModal";
+import { renderPersonaBattleDeck, attachPersonaBattleDeckEvents } from "../components/PersonaBattleDeck";
+import { personaWizardModal } from "../components/PersonaWizardModal";
+import { personaTransitionOverlay } from "../components/PersonaTransitionOverlay";
+import { personaAudio } from "../utils/personaAudio";
 import { subclassSelectModal } from "../components/SubclassSelectModal";
 import { editCharacterModal } from "../components/EditCharacterModal";
 import { featPickerModal } from "../components/FeatPickerModal";
@@ -115,6 +119,7 @@ interface MoveItem {
 let activeTab: "actions" | "inventory" | "features" | "feats" | "roleplay" | "affection" = "actions";
 let activeMoveFilter: string = "all";
 let isDmUnlocked = false;
+let isPersonaDeckOpen = false;
 let activeRenderedMoves: MoveItem[] = [];
 
 // Cached compendiums for the active sheet
@@ -196,6 +201,8 @@ export async function renderCharacterSheetView(params: Record<string, string>): 
 
     // Reset DM mode and default tab
     isDmUnlocked = false;
+    isPersonaDeckOpen = false;
+    document.body.classList.remove("persona-metaverse-active");
     activeTab = "actions";
     activeMoveFilter = "all";
 
@@ -653,8 +660,28 @@ function renderDndBeyondSheet(container: HTMLElement, char: Character) {
 
           </div>
 
+          <!-- BREAK THE MASK (P5R TOGGLE WITH CUSTOM JOKER MASK PNG) -->
+          <div class="break-the-mask-container">
+            <button
+              type="button"
+              class="break-the-mask-btn ${isPersonaDeckOpen ? 'active' : ''}"
+              id="breakTheMaskBtn"
+              aria-pressed="${isPersonaDeckOpen ? 'true' : 'false'}"
+              title="Break the Mask — Toggle Persona Battle Deck"
+            >
+              <span class="joker-mask-wrap" aria-hidden="true">
+                <img
+                  src="${import.meta.env.BASE_URL}assets/joker-mask.png"
+                  alt=""
+                  class="joker-mask-img"
+                />
+              </span>
+              <span class="mask-btn-label">${char.persona?.isAwakened ? (isPersonaDeckOpen ? 'KEMBALI KE SHEET' : 'PERSONA BATTLE DECK') : 'BREAK THE MASK'}</span>
+            </button>
+          </div>
+
           <!-- INTERACTIVE TABS CONTAINER (ACTIONS, INVENTORY, FEATURES, FEATS, ROLEPLAY, AFFECTION) -->
-          <div class="sheet-tabs-container">
+          <div class="sheet-tabs-container" id="sheetTabsContainer" style="${isPersonaDeckOpen ? 'display:none;' : 'display:block;'}">
             <div class="sheet-tabs-nav">
               <button class="tab-btn ${activeTab === 'actions' ? 'active' : ''}" data-tab="actions">ACTIONS &amp; MOVES</button>
               <button class="tab-btn ${activeTab === 'inventory' ? 'active' : ''}" data-tab="inventory">INVENTORY</button>
@@ -861,6 +888,11 @@ function renderDndBeyondSheet(container: HTMLElement, char: Character) {
               </div>
             </div>
 
+          </div>
+
+          <!-- PERSONA BATTLE DECK CONTAINER (PERSONA 5 ROYAL THEME) -->
+          <div id="personaDeckWrapper" style="${isPersonaDeckOpen ? 'display:block;' : 'display:none;'}">
+            ${renderPersonaBattleDeck(char)}
           </div>
 
         </div>
@@ -2016,6 +2048,107 @@ function attachSheetEvents(container: HTMLElement, char: Character) {
       if (targetPane) targetPane.style.display = "block";
     });
   });
+
+  // 10b. Break the Mask Toggle (Persona 5 Royal Battle Deck + Awakening Fire + Standard Transition + Metaverse Bleed + BGM)
+  const maskBtn = container.querySelector("#breakTheMaskBtn");
+  if (maskBtn) {
+    maskBtn.addEventListener("click", () => {
+      if (personaTransitionOverlay.isActive()) return;
+
+      if (!char.persona || !char.persona.isAwakened) {
+        // First-time special transition: Rising Spirit Fire bottom -> top, then open Awakening Wizard
+        personaTransitionOverlay.play("awakening", () => {
+          personaWizardModal.open(char, (newPersona) => {
+            char.persona = newPersona;
+            void personaAudio.play("battle");
+            personaTransitionOverlay.play(
+              "open",
+              () => {
+                isPersonaDeckOpen = true;
+                document.body.classList.add("persona-metaverse-active");
+                renderDndBeyondSheet(document.getElementById("appMain")!, char);
+                attachSheetEvents(document.getElementById("appMain")!, char);
+                const freshDeck = document.getElementById("personaDeckWrapper");
+                freshDeck?.classList.add("p5-deck-enter");
+              },
+              () => {
+                document.getElementById("personaDeckWrapper")?.classList.remove("p5-deck-enter");
+              }
+            );
+          });
+        });
+        return;
+      }
+
+      const nextOpen = !isPersonaDeckOpen;
+      const tabsEl = document.getElementById("sheetTabsContainer");
+      const deckEl = document.getElementById("personaDeckWrapper");
+      const btnSpan = maskBtn.querySelector(".mask-btn-label");
+
+      if (nextOpen) {
+        // Trigger battle BGM immediately inside user click gesture
+        void personaAudio.play("battle");
+        personaTransitionOverlay.play(
+          "open",
+          () => {
+            isPersonaDeckOpen = true;
+            document.body.classList.add("persona-metaverse-active");
+            if (tabsEl) {
+              tabsEl.classList.remove("p5-sheet-restore");
+              tabsEl.style.display = "none";
+            }
+            if (deckEl) {
+              deckEl.innerHTML = renderPersonaBattleDeck(char);
+              deckEl.classList.remove("p5-deck-exit");
+              deckEl.style.display = "block";
+              deckEl.classList.add("p5-deck-enter");
+              attachPersonaBattleDeckEvents(deckEl, char);
+            }
+            maskBtn.classList.add("active");
+            maskBtn.setAttribute("aria-pressed", "true");
+            if (btnSpan) btnSpan.textContent = "KEMBALI KE SHEET";
+          },
+          () => {
+            deckEl?.classList.remove("p5-deck-enter");
+          }
+        );
+      } else {
+        // Stop battle BGM & shrink deck big -> small
+        personaAudio.stop(280);
+        if (deckEl) {
+          deckEl.classList.remove("p5-deck-enter");
+          deckEl.classList.add("p5-deck-exit");
+        }
+        personaTransitionOverlay.play(
+          "close",
+          () => {
+            isPersonaDeckOpen = false;
+            document.body.classList.remove("persona-metaverse-active");
+            if (deckEl) {
+              deckEl.classList.remove("p5-deck-exit");
+              deckEl.style.display = "none";
+            }
+            if (tabsEl) {
+              tabsEl.style.display = "block";
+              tabsEl.classList.add("p5-sheet-restore");
+            }
+            maskBtn.classList.remove("active");
+            maskBtn.setAttribute("aria-pressed", "false");
+            if (btnSpan) btnSpan.textContent = "PERSONA BATTLE DECK";
+          },
+          () => {
+            tabsEl?.classList.remove("p5-sheet-restore");
+          }
+        );
+      }
+    });
+  }
+
+  // Attach battle deck events
+  const deckWrapper = document.getElementById("personaDeckWrapper");
+  if (deckWrapper) {
+    attachPersonaBattleDeckEvents(deckWrapper, char);
+  }
 
   // 11. Move Filter Pills & Interactive Drawer Events
   container.querySelectorAll(".moves-filter-bar .filter-pill").forEach((pill: any) => {

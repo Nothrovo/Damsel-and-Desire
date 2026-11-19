@@ -1,3 +1,6 @@
+import type { CharacterPersona } from './persona';
+export * from './persona';
+
 export type CampaignRole = 'dm' | 'player';
 
 export interface Profile {
@@ -114,6 +117,7 @@ export interface Character {
   achievements?: CharacterAchievement[];
   featUsage?: FeatUsageTracker;
   feat_usage?: FeatUsageTracker;
+  persona?: CharacterPersona | null;
   created_at: string;
   updated_at: string;
   owner_profile?: Profile;

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { characterStore } from "../src/store/characterStore";
-import { longRestRpc, adjustSavingsRpc, isValidUuid } from "../src/api/gameRpc";
+import { longRestRpc, adjustSavingsRpc, applyVitalChangeRpc, isValidUuid } from "../src/api/gameRpc";
 import { supabase } from "../src/api/supabase";
 import type { Character } from "../src/types";
 
@@ -307,6 +307,51 @@ describe("Game RPC Logic & Financial Integration", () => {
       expect(characterStore.currentCharacter?.version).toBe(2);
 
       rpcSpy.mockRestore();
+    });
+  });
+
+  describe("Vital Alteration & HP/Composure Logic (applyVitalChangeRpc)", () => {
+    it("does not call supabase.rpc when character ID is a non-UUID fixture string", async () => {
+      const rpcSpy = vi.spyOn(supabase, "rpc");
+      const char = createMockCharacter({ id: "test-char-123" });
+      characterStore.setCurrentCharacter(char);
+
+      const res = await applyVitalChangeRpc(char.id, "phys", -2, 1);
+      expect(rpcSpy).not.toHaveBeenCalled();
+      expect(res.delta).toBe(-2);
+      expect(res.newVitals.physicalHpCurrent).toBe(3);
+      rpcSpy.mockRestore();
+    });
+
+    it("correctly clamps to effective max HP when healing beyond un-synced base HP", async () => {
+      const char = createMockCharacter({
+        id: "test-char-123",
+        abilities: {
+          physique: { score: 15, label: "Physique", short: "PHY" } as any,
+          intelligent: { score: 10 } as any,
+          looks: { score: 10 } as any,
+          mind: { score: 10 } as any,
+          talent: { score: 10 } as any,
+          luck: { score: 10 } as any
+        },
+        archetype_id: "delinquent",
+        vitals: {
+          physicalHpCurrent: 8,
+          physicalHpMax: 10,
+          physicalHpTemp: 0,
+          composureCurrent: 10,
+          composureMax: 10,
+          composureTemp: 0,
+          restDiceSpent: 0,
+          restDiceTotal: 1,
+          heartInspiration: false
+        }
+      });
+      characterStore.setCurrentCharacter(char);
+
+      // When healing with effectiveMax 13, it should reach 12 (not clamped at 10)
+      const res = await applyVitalChangeRpc(char.id, "phys", 4, 1, 13);
+      expect(res.newVitals.physicalHpCurrent).toBe(12);
     });
   });
 });

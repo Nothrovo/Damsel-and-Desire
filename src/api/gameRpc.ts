@@ -309,47 +309,92 @@ export async function applyVitalChangeRpc(
   characterId: string,
   type: 'phys' | 'composure',
   delta: number,
-  currentVersion: number
+  currentVersion: number,
+  effectiveMax?: number,
+  exactTargetValue?: number
 ) {
-  try {
-    let { data, error } = await supabase.rpc("apply_vital_change", {
-      p_character_id: characterId,
-      p_type: type,
-      p_delta: delta,
-      p_client_version: currentVersion
-    });
+  if (isValidUuid(characterId)) {
+    try {
+      let { data, error } = await supabase.rpc("apply_vital_change", {
+        p_character_id: characterId,
+        p_type: type,
+        p_delta: delta,
+        p_client_version: currentVersion
+      });
 
-    if (error && (error.message.includes("ERR_CONCURRENCY_CONFLICT") || error.message.includes("Versi data karakter"))) {
-      const { data: latest } = await supabase.from("characters").select("version").eq("id", characterId).single();
-      if (latest && typeof latest.version === "number") {
-        const retry = await supabase.rpc("apply_vital_change", {
-          p_character_id: characterId,
-          p_type: type,
-          p_delta: delta,
-          p_client_version: latest.version
-        });
-        if (!retry.error && retry.data) {
-          data = retry.data;
-          error = null;
+      if (error && (error.message.includes("ERR_CONCURRENCY_CONFLICT") || error.message.includes("Versi data karakter"))) {
+        const { data: latest } = await supabase.from("characters").select("version").eq("id", characterId).single();
+        if (latest && typeof latest.version === "number") {
+          const retry = await supabase.rpc("apply_vital_change", {
+            p_character_id: characterId,
+            p_type: type,
+            p_delta: delta,
+            p_client_version: latest.version
+          });
+          if (!retry.error && retry.data) {
+            data = retry.data;
+            error = null;
+          }
         }
       }
-    }
 
-    if (!error && data) return data;
-  } catch (e) {
-    console.warn("RPC apply_vital_change gagal di cloud, fallback lokal:", e);
+      if (!error && data) {
+        if (effectiveMax && data.newVitals) {
+          const maxKey = type === "phys" ? "physicalHpMax" : "composureMax";
+          if (data.newVitals[maxKey] < effectiveMax) {
+            data.newVitals[maxKey] = effectiveMax;
+          }
+        }
+        return data;
+      }
+    } catch (e) {
+      console.warn("RPC apply_vital_change gagal di cloud, fallback lokal:", e);
+    }
   }
 
   // Local fallback
   const char = characterStore.currentCharacter;
   if (!char) throw new Error("Karakter tidak ditemukan.");
 
+  const curKey = type === "phys" ? "physicalHpCurrent" : "composureCurrent";
+  const maxKey = type === "phys" ? "physicalHpMax" : "composureMax";
+  const maxLimit = Math.max(char.vitals[maxKey] || 0, effectiveMax || 0);
+
+  const curVal = typeof char.vitals[curKey] === "number" ? char.vitals[curKey] : maxLimit;
+  const newVal = exactTargetValue !== undefined
+    ? Math.max(0, Math.min(maxLimit, exactTargetValue))
+    : Math.max(0, Math.min(maxLimit, curVal + delta));
+
+  char.vitals[maxKey] = maxLimit;
+  char.vitals[curKey] = newVal;
+
+  const newVer = (char.version || currentVersion) + 1;
+  char.version = newVer;
+
+  // Persist to local roster
+  try {
+    if (typeof localStorage !== "undefined") {
+      const raw = localStorage.getItem("damsel_desire_roster");
+      if (raw) {
+        const list = JSON.parse(raw);
+        const idx = list.findIndex((c: any) => c.id === characterId);
+        if (idx >= 0) {
+          list[idx].vitals = char.vitals;
+          list[idx].version = newVer;
+          localStorage.setItem("damsel_desire_roster", JSON.stringify(list));
+        }
+      }
+    }
+  } catch (err) {
+    // ignore storage error
+  }
+
   return {
     characterId,
     type,
     delta,
     newVitals: char.vitals,
-    newVersion: (char.version || currentVersion) + 1
+    newVersion: newVer
   };
 }
 

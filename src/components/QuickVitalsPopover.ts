@@ -128,6 +128,16 @@ export class QuickVitalsPopover {
     this.inputVal = Math.max(1, val);
     const input = document.getElementById("vitalsAmountInput") as HTMLInputElement | null;
     if (input) input.value = String(this.inputVal);
+
+    const dmgHint = document.getElementById("vitalDmgHint");
+    const healHint = document.getElementById("vitalHealHint");
+    if (this.currentType === "physical_hp") {
+      if (dmgHint) dmgHint.textContent = `Kurangi HP (-${this.inputVal})`;
+      if (healHint) healHint.textContent = `Tambah HP (+${this.inputVal})`;
+    } else {
+      if (dmgHint) dmgHint.textContent = `Kurangi Composure (-${this.inputVal})`;
+      if (healHint) healHint.textContent = `Pulihkan Composure (+${this.inputVal})`;
+    }
   }
 
   open(type: VitalType, charId: string, currentVal: number, maxVal: number): void {
@@ -206,19 +216,32 @@ export class QuickVitalsPopover {
 
     try {
       const typeKey = this.currentType === "physical_hp" ? "phys" : "composure";
+      const curKey = this.currentType === "physical_hp" ? "physicalHpCurrent" : "composureCurrent";
+      const maxKey = this.currentType === "physical_hp" ? "physicalHpMax" : "composureMax";
+      const maxLimit = Math.max(char.vitals[maxKey] || 0, this.maxVal || 0);
+
+      const baseVal = char.vitals[curKey] ?? maxLimit;
+      const targetVal = Math.max(0, Math.min(maxLimit, baseVal + delta));
+
       await characterStore.runOptimisticUpdate(
         (draft) => {
-          const curKey = this.currentType === "physical_hp" ? "physicalHpCurrent" : "composureCurrent";
-          const maxKey = this.currentType === "physical_hp" ? "physicalHpMax" : "composureMax";
-          draft.vitals[curKey] = Math.max(0, Math.min(draft.vitals[maxKey], draft.vitals[curKey] + delta));
+          draft.vitals[maxKey] = maxLimit;
+          draft.vitals[curKey] = targetVal;
         },
-        () => applyVitalChangeRpc(char.id, typeKey, delta, characterStore.currentCharacter?.version ?? char.version)
+        () => applyVitalChangeRpc(
+          char.id,
+          typeKey,
+          delta,
+          characterStore.currentCharacter?.version ?? char.version,
+          maxLimit,
+          targetVal
+        )
       );
 
       const updated = characterStore.currentCharacter;
       const newCur = updated 
         ? (this.currentType === "physical_hp" ? updated.vitals.physicalHpCurrent : updated.vitals.composureCurrent)
-        : this.currentVal + delta;
+        : targetVal;
       
       const changeLabel = delta > 0 ? `+${delta}` : `${delta}`;
       const nameLabel = this.currentType === "physical_hp" ? "Physical HP" : "Composure";
@@ -230,7 +253,9 @@ export class QuickVitalsPopover {
   }
 
   private async resetFull() {
-    const diff = this.maxVal - this.currentVal;
+    const curKey = this.currentType === "physical_hp" ? "physicalHpCurrent" : "composureCurrent";
+    const currentLiveVal = characterStore.currentCharacter?.vitals[curKey] ?? this.currentVal;
+    const diff = this.maxVal - currentLiveVal;
     if (diff <= 0) {
       showToast("Nilai sudah berada di batas maksimal!", "info");
       this.close();

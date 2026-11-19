@@ -4,6 +4,7 @@ import { setMobileNavigationOpen } from "./mobileNavigation";
 
 function getActivePath(): string {
   const path = window.location.pathname;
+  if (path.includes("/persona")) return "/persona";
   if (path.includes("/codex")) return "/codex";
   if (path.includes("/compendium")) return "/compendium";
   if (path.includes("/handbook")) return "/handbook";
@@ -61,6 +62,12 @@ export function renderNavbar(): string {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             <span>Kalender</span>
           </a>
+          <a href="/persona" class="nav-link ${activePath === '/persona' ? 'active' : ''}" data-nav-path="/persona">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="nav-icon" style="color:#e60012;">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-3.8l-3.2 1.9-1-1.7 3.2-1.9-3.2-1.9 1-1.7 3.2 1.9V5.5h2v3.8l3.2-1.9 1 1.7-3.2 1.9 3.2 1.9-1 1.7-3.2-1.9v3.8h-2z"/>
+            </svg>
+            <span style="font-weight:700;">Persona</span>
+          </a>
         </nav>
 
         <div class="nav-actions">
@@ -97,7 +104,8 @@ export function renderNavbar(): string {
 
 export function updateNavbarActive(currentPath: string) {
   let target = "/";
-  if (currentPath.includes("/codex")) target = "/codex";
+  if (currentPath.includes("/persona")) target = "/persona";
+  else if (currentPath.includes("/codex")) target = "/codex";
   else if (currentPath.includes("/compendium")) target = "/compendium";
   else if (currentPath.includes("/handbook")) target = "/handbook";
   else if (currentPath.includes("/map")) target = "/map";

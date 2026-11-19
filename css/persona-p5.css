@@ -1,0 +1,2276 @@
+/* ==========================================================================
+   PERSONA 5 ROYAL (P5R) SCOPED STYLESHEET — DAMSEL & DESIRE
+   Authentic Neo-Brutalism x Acid-Punk x Manga Noir Aesthetics
+   Applied strictly to .persona-p5-scope and related P5 modals
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. Design Tokens (Scoped Custom Properties)
+   -------------------------------------------------------------------------- */
+.persona-p5-scope,
+.p5-modal-root,
+.break-the-mask-container,
+.p5-transition-overlay {
+  --p5-red: #e60012;
+  --p5-crimson: #b3000c;
+  --p5-red-glow: rgba(230, 0, 18, 0.55);
+  --p5-black: #0a0a0c;
+  --p5-jet: #121215;
+  --p5-dark-gray: #1e1e24;
+  --p5-mid-gray: #2d2d34;
+  --p5-light-gray: #e2e2e8;
+  --p5-white: #ffffff;
+  --p5-yellow: #ffe600;
+  --p5-cyan: #00f0ff;
+  --p5-font-display: 'Bebas Neue', 'Oswald', Impact, sans-serif;
+  --p5-font-body: 'Chakra Petch', system-ui, sans-serif;
+  --p5-skew-subtle: -5deg;
+  --p5-skew-bold: -12deg;
+  --p5-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --------------------------------------------------------------------------
+   2. Halftone & Manga Graphic Texture
+   -------------------------------------------------------------------------- */
+.persona-p5-scope {
+  position: relative;
+  background-color: var(--p5-black);
+  color: var(--p5-white);
+  font-family: var(--p5-font-body);
+  border: 3px solid var(--p5-red);
+  box-shadow: 6px 6px 0px #000, 10px 10px 0px var(--p5-red);
+  padding: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 2px;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.persona-p5-scope::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: 
+    radial-gradient(circle, rgba(230, 0, 18, 0.15) 15%, transparent 20%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.05) 15%, transparent 20%);
+  background-size: 10px 10px;
+  background-position: 0 0, 5px 5px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.persona-p5-scope > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* --------------------------------------------------------------------------
+   3. Break the Mask Toggle Button (Custom Joker Mask PNG on Character Sheet)
+   -------------------------------------------------------------------------- */
+.break-the-mask-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.9rem;
+}
+
+.break-the-mask-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 48px;
+  background: linear-gradient(135deg, #0d0d10 0%, #19191f 100%);
+  border: 2.5px solid var(--p5-red);
+  color: #fff;
+  padding: 0.45rem 1.3rem 0.45rem 0.95rem;
+  font-family: var(--p5-font-display, sans-serif);
+  font-size: 1.2rem;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transform: skewX(-10deg);
+  box-shadow: 4px 4px 0px #000, 7px 7px 0px var(--p5-red);
+  transition: transform 0.22s var(--p5-spring), background 0.2s ease, box-shadow 0.22s ease, border-color 0.2s ease;
+  overflow: visible;
+}
+
+.break-the-mask-btn::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.break-the-mask-btn:focus-visible {
+  outline: 3px solid var(--p5-yellow);
+  outline-offset: 4px;
+}
+
+.break-the-mask-btn .joker-mask-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: skewX(10deg);
+}
+
+.break-the-mask-btn .joker-mask-img {
+  width: 58px;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.85));
+  transition: transform 0.26s var(--p5-spring), filter 0.24s ease;
+  user-select: none;
+  pointer-events: none;
+}
+
+.break-the-mask-btn .mask-btn-label {
+  transform: skewX(10deg);
+  display: inline-block;
+  line-height: 1;
+}
+
+.break-the-mask-btn:hover {
+  background: linear-gradient(135deg, #c80010 0%, #e60012 55%, #8f000b 100%);
+  border-color: #fff;
+  color: #fff;
+  transform: skewX(-10deg) scale(1.05) translateY(-2px);
+  box-shadow: 6px 6px 0px #000, 10px 10px 0px #fff, 0 0 22px rgba(230, 0, 18, 0.72);
+}
+
+.break-the-mask-btn:hover .joker-mask-img {
+  transform: rotate(-7deg) scale(1.16);
+  filter:
+    drop-shadow(0 0 6px #ff1a2d)
+    drop-shadow(0 0 14px rgba(230, 0, 18, 0.95))
+    drop-shadow(0 2px 2px #000);
+}
+
+.break-the-mask-btn:active {
+  transform: skewX(-10deg) scale(0.97) translateY(1px);
+  box-shadow: 2px 2px 0px #000, 4px 4px 0px var(--p5-red);
+}
+
+.break-the-mask-btn.active {
+  background: var(--p5-red);
+  border-color: #fff;
+  box-shadow: 4px 4px 0px #000, 7px 7px 0px var(--p5-yellow);
+}
+
+.break-the-mask-btn.active .joker-mask-img {
+  filter:
+    drop-shadow(0 0 5px rgba(255, 230, 0, 0.7))
+    drop-shadow(0 2px 3px rgba(0, 0, 0, 0.9));
+}
+
+.break-the-mask-btn.active:hover {
+  background: #0a0a0c;
+  border-color: var(--p5-yellow);
+  color: var(--p5-yellow);
+  box-shadow: 6px 6px 0px #000, 10px 10px 0px var(--p5-red);
+}
+
+/* --------------------------------------------------------------------------
+   4. Battle Deck Header & Vitals (HP & SP × 10)
+   -------------------------------------------------------------------------- */
+.p5-deck-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  border-bottom: 3px solid var(--p5-red);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.p5-deck-title-area {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.p5-deck-badge {
+  background: var(--p5-red);
+  color: #fff;
+  font-family: var(--p5-font-display);
+  font-size: 1.8rem;
+  letter-spacing: 2px;
+  padding: 0.2rem 1rem;
+  transform: skewX(-12deg);
+  border: 2px solid #fff;
+  box-shadow: 4px 4px 0px #000;
+}
+
+.p5-deck-sub {
+  font-size: 0.85rem;
+  color: var(--p5-light-gray);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Vitals Bars (HP & SP Slanted Cards) */
+.p5-vitals-container {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.p5-vital-card {
+  background: var(--p5-jet);
+  border: 2px solid #333;
+  padding: 0.6rem 1rem;
+  min-width: 170px;
+  transform: skewX(-8deg);
+  box-shadow: 3px 3px 0px #000;
+  transition: border-color 0.2s;
+}
+
+.p5-vital-card:hover {
+  border-color: var(--p5-red);
+}
+
+.p5-vital-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.35rem;
+  transform: skewX(8deg); /* Counter skew */
+}
+
+.p5-vital-name {
+  font-family: var(--p5-font-display);
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+
+.p5-vital-name.hp-label { color: var(--p5-red); }
+.p5-vital-name.sp-label { color: var(--p5-cyan); }
+
+.p5-vital-nums {
+  font-family: var(--p5-font-display);
+  font-size: 1.2rem;
+  color: #fff;
+}
+
+.p5-bar-track {
+  height: 10px;
+  background: #222;
+  border: 1px solid #444;
+  overflow: hidden;
+  position: relative;
+}
+
+.p5-bar-fill-hp {
+  height: 100%;
+  background: linear-gradient(90deg, #ff1a2b, var(--p5-red));
+  transition: width 0.3s ease;
+}
+
+.p5-bar-fill-sp {
+  height: 100%;
+  background: linear-gradient(90deg, #00b8d4, var(--p5-cyan));
+  transition: width 0.3s ease;
+}
+
+/* Composure States */
+.p5-state-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--p5-font-display);
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  transform: skewX(-8deg);
+  margin-top: 0.4rem;
+}
+
+.p5-state-steady {
+  background: rgba(0, 240, 255, 0.15);
+  border: 1px solid var(--p5-cyan);
+  color: var(--p5-cyan);
+}
+
+.p5-state-salting {
+  background: rgba(255, 230, 0, 0.2);
+  border: 1px solid var(--p5-yellow);
+  color: var(--p5-yellow);
+  animation: p5-pulse-warn 1s infinite alternate;
+}
+
+.p5-state-meltdown {
+  background: rgba(230, 0, 18, 0.25);
+  border: 1px solid var(--p5-red);
+  color: var(--p5-red);
+  animation: p5-glitch 0.4s infinite;
+}
+
+@keyframes p5-pulse-warn {
+  0% { opacity: 0.7; transform: skewX(-8deg) scale(0.98); }
+  100% { opacity: 1; transform: skewX(-8deg) scale(1.02); filter: drop-shadow(0 0 6px var(--p5-yellow)); }
+}
+
+@keyframes p5-glitch {
+  0% { transform: skewX(-8deg) translate(0, 0); }
+  50% { transform: skewX(-10deg) translate(-2px, 1px); }
+  100% { transform: skewX(-6deg) translate(1px, -1px); }
+}
+
+/* --------------------------------------------------------------------------
+   5. Persona Persona Info Panel (Persona Name, Visual, Stats, & Affinities)
+   -------------------------------------------------------------------------- */
+.p5-center-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 860px) {
+  .p5-center-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.p5-persona-id-card {
+  background: var(--p5-jet);
+  border: 2px solid var(--p5-red);
+  padding: 1rem;
+  box-shadow: 4px 4px 0px #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.p5-persona-img-box {
+  width: 100%;
+  height: 200px;
+  background: #000;
+  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  position: relative;
+}
+
+.p5-persona-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.p5-persona-img-box:hover img {
+  transform: scale(1.08);
+}
+
+.p5-persona-arcana-ribbon {
+  background: var(--p5-red);
+  color: #fff;
+  font-family: var(--p5-font-display);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  padding: 0.2rem 0.8rem;
+  transform: skewX(-10deg);
+  margin-bottom: 0.5rem;
+  box-shadow: 2px 2px 0px #000;
+}
+
+.p5-persona-name-banner {
+  font-family: var(--p5-font-display);
+  font-size: 2rem;
+  letter-spacing: 2px;
+  color: #fff;
+  margin: 0.2rem 0;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0px var(--p5-red), 4px 4px 0px #000;
+}
+
+.p5-persona-flavor {
+  font-size: 0.8rem;
+  color: var(--p5-light-gray);
+  line-height: 1.4;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Persona Stats Trio (STR, MAG, END) */
+.p5-stats-trio {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.p5-stat-card {
+  background: var(--p5-jet);
+  border: 2px solid #333;
+  padding: 0.75rem;
+  text-align: center;
+  transform: skewX(-8deg);
+  box-shadow: 3px 3px 0px #000;
+  transition: all 0.2s;
+}
+
+.p5-stat-card:hover {
+  border-color: var(--p5-red);
+  transform: skewX(-8deg) translateY(-2px);
+}
+
+.p5-stat-title {
+  font-family: var(--p5-font-display);
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  color: var(--p5-yellow);
+  display: block;
+  transform: skewX(8deg);
+}
+
+.p5-stat-value {
+  font-family: var(--p5-font-display);
+  font-size: 2rem;
+  line-height: 1;
+  color: #fff;
+  margin: 0.2rem 0;
+  display: block;
+  transform: skewX(8deg);
+}
+
+.p5-stat-mod {
+  font-size: 0.8rem;
+  color: var(--p5-light-gray);
+  display: block;
+  transform: skewX(8deg);
+}
+
+/* Elemental Affinities Bar */
+.p5-affinities-panel {
+  background: var(--p5-jet);
+  border: 2px solid #333;
+  padding: 0.85rem 1rem;
+  box-shadow: 3px 3px 0px #000;
+  margin-bottom: 1.25rem;
+}
+
+.p5-affinities-title {
+  font-family: var(--p5-font-display);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  color: var(--p5-white);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.p5-affinities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+  gap: 0.4rem;
+}
+
+.p5-affinity-slot {
+  background: #000;
+  border: 1px solid #444;
+  padding: 0.4rem 0.2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.p5-aff-icon {
+  font-size: 1rem;
+}
+
+.p5-aff-name {
+  font-size: 0.65rem;
+  color: #888;
+  text-transform: uppercase;
+}
+
+.p5-aff-tag {
+  font-family: var(--p5-font-display);
+  font-size: 0.75rem;
+  padding: 1px 4px;
+  border-radius: 2px;
+  margin-top: 2px;
+  font-weight: 900;
+}
+
+.p5-aff-tag.tag-resist {
+  background: #27ae60;
+  color: #fff;
+}
+
+.p5-aff-tag.tag-immune {
+  background: #2980b9;
+  color: #fff;
+}
+
+.p5-aff-tag.tag-weak {
+  background: var(--p5-yellow);
+  color: #000;
+}
+
+.p5-aff-tag.tag-normal {
+  color: #555;
+}
+
+/* --------------------------------------------------------------------------
+   6. P5R Authentic Radial Wedge Battle Command Menu (Anti-Overlap Fan)
+   -------------------------------------------------------------------------- */
+.p5-battle-section {
+  border-top: 3px solid var(--p5-red);
+  padding-top: 1.5rem;
+}
+
+.p5-section-title {
+  font-family: var(--p5-font-display);
+  font-size: 1.5rem;
+  letter-spacing: 2px;
+  color: #fff;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.p5-section-title::before {
+  content: "▶";
+  color: var(--p5-red);
+}
+
+.p5-radial-command-stage {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(195px, 1fr) 34px minmax(250px, 1.25fr);
+  align-items: center;
+  justify-items: center;
+  gap: 0.75rem;
+  min-height: 310px;
+  margin: 1.25rem 0 2rem 0;
+  padding: 1.5rem 1rem;
+  overflow: visible;
+}
+
+/* Subtle radial energy ring behind pivot */
+.p5-radial-command-stage::before {
+  content: "";
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  left: 44%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(230, 0, 18, 0.24) 0%, rgba(230, 0, 18, 0.06) 52%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.p5-radial-wing {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+}
+
+.p5-radial-wing-left {
+  width: 100%;
+  align-items: flex-end;
+  justify-content: center;
+  padding-right: 0.25rem;
+}
+
+.p5-radial-wing-right {
+  width: 100%;
+  align-items: flex-start;
+  gap: 26px;
+  padding-left: 0.25rem;
+}
+
+/* Center pivot star/diamond spark */
+.p5-radial-pivot {
+  position: relative;
+  z-index: 1;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.p5-pivot-core {
+  width: 14px;
+  height: 14px;
+  background: var(--p5-red);
+  border: 2px solid #fff;
+  transform: rotate(45deg);
+  box-shadow: 0 0 14px rgba(230, 0, 18, 0.85), 3px 3px 0 #000;
+}
+
+/* Individual Wedge Slots — fan angles & horizontal stagger (zero overlap) */
+.p5-wedge-slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  transition: z-index 0s;
+}
+
+.p5-wedge-slot:hover,
+.p5-wedge-slot:focus-within {
+  z-index: 10;
+}
+
+.p5-slot-gun {
+  transform: rotate(-4deg);
+}
+
+.p5-slot-persona {
+  transform: rotate(-8deg);
+  margin-left: 8px;
+}
+
+.p5-slot-item {
+  transform: rotate(-2deg);
+  margin-left: 0px;
+}
+
+.p5-slot-sword {
+  transform: rotate(4deg);
+  margin-left: 36px;
+}
+
+.p5-slot-guard {
+  transform: rotate(9deg);
+  margin-left: 12px;
+}
+
+/* Wedge Button Shell (transparent wrapper holding crimson shard + black wedge body) */
+.p5-wedge-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  color: #fff;
+  min-height: 52px;
+  transition: transform 0.22s var(--p5-spring), filter 0.2s ease;
+  outline: none;
+}
+
+.p5-wedge-btn:focus-visible .p5-wedge-body {
+  outline: 3px solid var(--p5-yellow);
+  outline-offset: 3px;
+}
+
+/* Crimson jagged shard peeking behind every wedge (signature P5 look) */
+.p5-wedge-shard {
+  position: absolute;
+  inset: -4px -10px -8px -4px;
+  background: var(--p5-red);
+  clip-path: polygon(0% 56%, 100% 10%, 94% 96%, 8% 82%);
+  transform: translate(6px, 5px);
+  z-index: 0;
+  pointer-events: none;
+  transition: transform 0.22s var(--p5-spring), background 0.18s ease, opacity 0.18s ease;
+}
+
+.p5-wedge-btn-gun .p5-wedge-shard {
+  inset: -4px -4px -10px -12px;
+  clip-path: polygon(2% 18%, 100% 42%, 90% 88%, 12% 100%);
+  transform: translate(-6px, 7px);
+}
+
+.p5-wedge-btn-sword .p5-wedge-shard {
+  inset: -4px -12px -9px -6px;
+  clip-path: polygon(0% 34%, 100% 18%, 92% 100%, 6% 78%);
+}
+
+/* Main Black Manga Wedge Body */
+.p5-wedge-body {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 196px;
+  min-height: 52px;
+  padding: 0.55rem 1.7rem 0.55rem 1.15rem;
+  background: #070709;
+  color: #fff;
+  font-family: var(--p5-font-display, Impact, sans-serif);
+  font-size: 1.65rem;
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  line-height: 1;
+  text-transform: uppercase;
+  clip-path: polygon(0% 18%, 100% 0%, 94% 100%, 4% 90%);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.22);
+  transition: background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.p5-wedge-btn-item .p5-wedge-body {
+  min-width: 174px;
+  clip-path: polygon(0% 14%, 98% 2%, 94% 98%, 3% 92%);
+}
+
+.p5-wedge-btn-sword .p5-wedge-body {
+  min-width: 212px;
+  clip-path: polygon(2% 8%, 100% 14%, 92% 100%, 0% 86%);
+}
+
+.p5-wedge-btn-guard .p5-wedge-body {
+  min-width: 194px;
+  clip-path: polygon(0% 6%, 98% 18%, 92% 100%, 4% 82%);
+}
+
+.p5-wedge-btn-gun .p5-wedge-body {
+  min-width: 196px;
+  padding: 0.55rem 1.15rem 0.55rem 1.55rem;
+  justify-content: flex-end;
+  clip-path: polygon(0% 8%, 98% 20%, 95% 88%, 6% 100%);
+}
+
+/* Hover & Selected Motion: outward along fan direction — NEVER collides with neighbors */
+.p5-radial-wing-right .p5-wedge-btn:hover,
+.p5-radial-wing-right .p5-wedge-btn.selected {
+  transform: translateX(14px) scale(1.05);
+  filter: drop-shadow(0 0 14px rgba(230, 0, 18, 0.72));
+}
+
+.p5-radial-wing-left .p5-wedge-btn:hover,
+.p5-radial-wing-left .p5-wedge-btn.selected {
+  transform: translateX(-14px) scale(1.05);
+  filter: drop-shadow(0 0 14px rgba(230, 0, 18, 0.72));
+}
+
+.p5-wedge-btn:hover .p5-wedge-shard,
+.p5-wedge-btn.selected .p5-wedge-shard {
+  background: #fff;
+  transform: translate(10px, 7px) scale(1.03);
+}
+
+.p5-wedge-btn-gun:hover .p5-wedge-shard,
+.p5-wedge-btn-gun.selected .p5-wedge-shard {
+  background: #fff;
+  transform: translate(-10px, 8px) scale(1.03);
+}
+
+.p5-wedge-btn:hover .p5-wedge-body,
+.p5-wedge-btn.selected .p5-wedge-body {
+  background: var(--p5-red);
+  color: #fff;
+  box-shadow: inset 0 0 0 2px #fff;
+}
+
+.p5-wedge-btn:active {
+  transform: scale(0.97) !important;
+}
+
+/* PlayStation Button Circles */
+.p5-wedge-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0a0a0c;
+  border: 2.5px solid #fff;
+  box-shadow: 0 0 0 2px #000;
+  font-size: 1.05rem;
+  font-weight: 900;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.p5-sym-triangle { color: #38e8ff; }
+.p5-sym-square   { color: #ff69b4; }
+.p5-sym-circle   { color: #ff3b4e; }
+.p5-sym-cross    { color: #56a8ff; }
+.p5-sym-gun      { color: #ffffff; font-size: 1.15rem; }
+
+/* Ransom-note Cutout Typography (1 inverted white-box letter per word) */
+.p5-wedge-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  text-shadow: 2px 2px 0 #000;
+}
+
+.p5-wedge-label .p5-invert-letter {
+  display: inline-block;
+  background: #fff;
+  color: #070709;
+  padding: 1px 5px 0 5px;
+  margin: 0 2px;
+  transform: rotate(-5deg) scale(1.06);
+  text-shadow: none;
+  line-height: 1.02;
+}
+
+.p5-wedge-btn:hover .p5-invert-letter,
+.p5-wedge-btn.selected .p5-invert-letter {
+  background: #070709;
+  color: var(--p5-yellow);
+}
+
+/* Ammo Counter Pill inside GUN wedge */
+.p5-wedge-ammo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--p5-yellow);
+  color: #070709;
+  border: 2px solid #000;
+  font-family: var(--p5-font-display, Impact, sans-serif);
+  font-size: 0.98rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  transform: skewX(-8deg);
+  line-height: 1.1;
+}
+
+.p5-wedge-btn-gun:hover .p5-wedge-ammo,
+.p5-wedge-btn-gun.selected .p5-wedge-ammo {
+  background: #fff;
+  color: var(--p5-red);
+}
+
+/* Responsive Mobile Stack (< 680px) — Zero Overlap Staggered Angled Stack */
+@media (max-width: 680px) {
+  .p5-radial-command-stage {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    min-height: auto;
+    padding: 0.75rem 0.25rem;
+  }
+
+  .p5-radial-command-stage::before,
+  .p5-radial-pivot {
+    display: none;
+  }
+
+  .p5-radial-wing-left,
+  .p5-radial-wing-right {
+    align-items: stretch;
+    padding: 0;
+    gap: 14px;
+  }
+
+  .p5-wedge-slot,
+  .p5-slot-gun,
+  .p5-slot-persona,
+  .p5-slot-item,
+  .p5-slot-sword,
+  .p5-slot-guard {
+    width: 100%;
+    margin-left: 0;
+    transform: none;
+  }
+
+  .p5-wedge-btn {
+    width: 100%;
+  }
+
+  .p5-wedge-body,
+  .p5-wedge-btn-item .p5-wedge-body,
+  .p5-wedge-btn-sword .p5-wedge-body,
+  .p5-wedge-btn-guard .p5-wedge-body,
+  .p5-wedge-btn-gun .p5-wedge-body {
+    width: 100%;
+    min-width: 0;
+    min-height: 52px;
+    justify-content: flex-start;
+    padding: 0.65rem 1.25rem;
+    clip-path: polygon(0% 8%, 100% 0%, 98% 100%, 2% 94%);
+  }
+
+  .p5-wedge-btn-gun .p5-wedge-ammo {
+    margin-left: auto;
+  }
+
+  .p5-radial-wing-right .p5-wedge-btn:hover,
+  .p5-radial-wing-right .p5-wedge-btn.selected,
+  .p5-radial-wing-left .p5-wedge-btn:hover,
+  .p5-radial-wing-left .p5-wedge-btn.selected {
+    transform: translateX(6px) scale(1.02);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   7. Expandable Skill Drawer (P5 Dynamic List)
+   -------------------------------------------------------------------------- */
+.p5-skills-drawer {
+  background: var(--p5-jet);
+  border: 2px solid var(--p5-red);
+  box-shadow: 4px 4px 0px #000;
+  padding: 1.25rem;
+  margin-top: 1.5rem;
+  animation: p5-slide-down 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes p5-slide-down {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.p5-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #333;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.p5-drawer-title {
+  font-family: var(--p5-font-display);
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+  color: var(--p5-yellow);
+}
+
+.p5-sp-budget {
+  font-family: var(--p5-font-display);
+  font-size: 1.1rem;
+  color: var(--p5-cyan);
+}
+
+.p5-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.p5-skill-card {
+  background: #000;
+  border: 2px solid #333;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transform: skewX(-6deg);
+  box-shadow: 3px 3px 0px #000;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.p5-skill-card:hover {
+  border-color: var(--p5-red);
+  background: #18181c;
+  transform: skewX(-6deg) scale(1.02) translateY(-2px);
+  box-shadow: 5px 5px 0px #000, 7px 7px 0px var(--p5-red);
+}
+
+.p5-skill-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transform: skewX(6deg);
+}
+
+.p5-skill-name {
+  font-family: var(--p5-font-display);
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.p5-sp-cost-chip {
+  background: var(--p5-cyan);
+  color: #000;
+  font-family: var(--p5-font-display);
+  font-size: 0.95rem;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.p5-sp-cost-chip.cost-free {
+  background: #27ae60;
+  color: #fff;
+}
+
+.p5-skill-desc {
+  font-size: 0.8rem;
+  color: var(--p5-light-gray);
+  line-height: 1.35;
+  transform: skewX(6deg);
+}
+
+.p5-skill-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: #888;
+  transform: skewX(6deg);
+}
+
+.p5-cast-btn {
+  background: var(--p5-red);
+  color: #fff;
+  border: 1px solid #fff;
+  font-family: var(--p5-font-display);
+  font-size: 0.9rem;
+  padding: 2px 10px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 0.15s;
+}
+
+.p5-cast-btn:hover {
+  background: #fff;
+  color: var(--p5-red);
+}
+
+/* --------------------------------------------------------------------------
+   8. Encounter Action Bar & All-Out Attack Button
+   -------------------------------------------------------------------------- */
+.p5-encounter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid #333;
+}
+
+.p5-encounter-btn-group {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.p5-encounter-btn {
+  background: #000;
+  border: 2px solid #555;
+  color: #fff;
+  font-family: var(--p5-font-display);
+  font-size: 1.1rem;
+  padding: 0.5rem 1.25rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transform: skewX(-8deg);
+  box-shadow: 3px 3px 0px #000;
+  transition: all 0.2s;
+}
+
+.p5-encounter-btn:hover {
+  border-color: #fff;
+  background: #222;
+  transform: skewX(-8deg) translateY(-2px);
+}
+
+.p5-aoa-trigger-btn {
+  background: var(--p5-yellow);
+  color: #000;
+  border: 2px solid #000;
+  font-family: var(--p5-font-display);
+  font-size: 1.2rem;
+  font-weight: 900;
+  padding: 0.5rem 1.5rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transform: skewX(-12deg);
+  box-shadow: 4px 4px 0px #000, 6px 6px 0px var(--p5-red);
+  transition: all 0.2s;
+}
+
+.p5-aoa-trigger-btn:hover {
+  background: var(--p5-red);
+  color: #fff;
+  border-color: #fff;
+  transform: skewX(-12deg) scale(1.05);
+  box-shadow: 6px 6px 0px #000, 8px 8px 0px var(--p5-yellow);
+}
+
+/* --------------------------------------------------------------------------
+   9. Awakening Ceremony Wizard Modal
+   -------------------------------------------------------------------------- */
+.p5-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.p5-wizard-card {
+  background: var(--p5-jet);
+  border: 3px solid var(--p5-red);
+  box-shadow: 8px 8px 0px #000, 14px 14px 0px var(--p5-red);
+  max-width: 760px;
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+  color: #fff;
+  font-family: var(--p5-font-body);
+}
+
+.p5-contract-heading {
+  font-family: var(--p5-font-display);
+  font-size: 2.2rem;
+  letter-spacing: 2px;
+  color: var(--p5-red);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  text-shadow: 2px 2px 0px #000;
+}
+
+.p5-contract-quote {
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--p5-light-gray);
+  border-left: 4px solid var(--p5-red);
+  padding-left: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.p5-arcana-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.6rem;
+  max-height: 280px;
+  overflow-y: auto;
+  border: 2px solid #333;
+  padding: 0.75rem;
+  background: #000;
+  margin-bottom: 1.25rem;
+}
+
+.p5-arcana-tile {
+  background: #18181c;
+  border: 1px solid #444;
+  padding: 0.6rem 0.4rem;
+  text-align: center;
+  cursor: pointer;
+  transform: skewX(-6deg);
+  transition: all 0.15s;
+}
+
+.p5-arcana-tile:hover,
+.p5-arcana-tile.active {
+  border-color: var(--p5-red);
+  background: var(--p5-red);
+  color: #fff;
+  transform: skewX(-6deg) scale(1.05);
+}
+
+.p5-arcana-tile-num {
+  font-family: var(--p5-font-display);
+  font-size: 1.1rem;
+  display: block;
+}
+
+.p5-arcana-tile-name {
+  font-size: 0.75rem;
+  display: block;
+  margin-top: 2px;
+}
+
+.p5-form-group {
+  margin-bottom: 1rem;
+}
+
+.p5-form-label {
+  display: block;
+  font-family: var(--p5-font-display);
+  font-size: 1.1rem;
+  letter-spacing: 1px;
+  margin-bottom: 0.35rem;
+  color: var(--p5-yellow);
+}
+
+.p5-form-input {
+  width: 100%;
+  background: #000;
+  border: 2px solid #444;
+  color: #fff;
+  font-family: var(--p5-font-body);
+  font-size: 1rem;
+  padding: 0.6rem 0.8rem;
+  box-sizing: border-box;
+}
+
+.p5-form-input:focus {
+  border-color: var(--p5-red);
+  outline: none;
+  box-shadow: 0 0 8px var(--p5-red);
+}
+
+.p5-modal-btn-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+/* --------------------------------------------------------------------------
+   10. All-Out Attack Dramatic Finisher Modal
+   -------------------------------------------------------------------------- */
+.p5-aoa-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--p5-red);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: p5-aoa-flash 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes p5-aoa-flash {
+  0% { transform: scale(1.2); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.p5-aoa-stripes {
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(0, 0, 0, 0.95),
+    rgba(0, 0, 0, 0.95) 40px,
+    var(--p5-red) 40px,
+    var(--p5-red) 80px
+  );
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.p5-aoa-header {
+  position: relative;
+  z-index: 2;
+}
+
+.p5-aoa-headline {
+  font-family: var(--p5-font-display);
+  font-size: 5rem;
+  line-height: 0.9;
+  letter-spacing: 4px;
+  color: #fff;
+  text-transform: uppercase;
+  transform: skewX(-12deg) rotate(-2deg);
+  text-shadow: 6px 6px 0px #000, 12px 12px 0px var(--p5-yellow);
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .p5-aoa-headline { font-size: 3rem; }
+}
+
+.p5-aoa-body {
+  position: relative;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.85);
+  border: 3px solid #fff;
+  padding: 1.5rem 2rem;
+  max-width: 600px;
+  box-shadow: 10px 10px 0px #000;
+  transform: skewX(-6deg);
+}
+
+.p5-aoa-dice-box {
+  font-family: var(--p5-font-display);
+  font-size: 2rem;
+  color: var(--p5-yellow);
+  margin: 0.75rem 0;
+}
+
+.p5-aoa-close-btn {
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  font-family: var(--p5-font-display);
+  font-size: 1.4rem;
+  padding: 0.6rem 2rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-weight: 900;
+  transform: skewX(-12deg);
+  box-shadow: 4px 4px 0px #000;
+  align-self: flex-start;
+  transition: all 0.15s;
+}
+
+.p5-aoa-close-btn:hover {
+  background: var(--p5-yellow);
+  transform: skewX(-12deg) scale(1.05);
+}
+
+/* --------------------------------------------------------------------------
+   11. Persona Hub View (/persona)
+   -------------------------------------------------------------------------- */
+.p5-hub-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  color: #fff;
+  font-family: var(--p5-font-body);
+}
+
+.p5-hub-hero {
+  background: #000;
+  border: 3px solid var(--p5-red);
+  padding: 2.5rem 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 8px 8px 0px #000, 14px 14px 0px var(--p5-red);
+}
+
+.p5-hub-title {
+  font-family: var(--p5-font-display);
+  font-size: 3.5rem;
+  letter-spacing: 3px;
+  color: #fff;
+  margin: 0;
+  text-shadow: 4px 4px 0px var(--p5-red), 8px 8px 0px #000;
+  transform: skewX(-8deg);
+}
+
+.p5-hub-nav-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 3px solid var(--p5-red);
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.p5-hub-tab-btn {
+  background: #111;
+  border: 2px solid #333;
+  border-bottom: none;
+  color: #fff;
+  font-family: var(--p5-font-display);
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+  padding: 0.6rem 1.5rem;
+  cursor: pointer;
+  transform: skewX(-8deg);
+  transition: all 0.15s;
+}
+
+.p5-hub-tab-btn:hover,
+.p5-hub-tab-btn.active {
+  background: var(--p5-red);
+  border-color: var(--p5-red);
+  color: #fff;
+  transform: skewX(-8deg) translateY(-3px);
+  box-shadow: 0 -4px 0px #fff;
+}
+
+/* Arcana Cards Grid in Hub */
+.p5-arcana-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+}
+
+.p5-arcana-full-card {
+  background: var(--p5-jet);
+  border: 2px solid #333;
+  padding: 1.25rem;
+  cursor: pointer;
+  transform: skewX(-4deg);
+  box-shadow: 4px 4px 0px #000;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.p5-arcana-full-card:hover {
+  border-color: var(--p5-red);
+  transform: skewX(-4deg) scale(1.03) translateY(-3px);
+  box-shadow: 6px 6px 0px #000, 8px 8px 0px var(--p5-red);
+}
+
+.p5-arcana-full-num {
+  font-family: var(--p5-font-display);
+  font-size: 2.2rem;
+  color: var(--p5-red);
+  line-height: 1;
+}
+
+.p5-arcana-full-name {
+  font-family: var(--p5-font-display);
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  color: #fff;
+  margin: 0.3rem 0;
+}
+
+.p5-arcana-full-stat {
+  font-size: 0.85rem;
+  color: var(--p5-yellow);
+  text-transform: uppercase;
+}
+
+/* --------------------------------------------------------------------------
+   12. Persona 5 Royal Fullscreen Transition Overlay (Open: Small->Big, Close: Big->Small)
+   -------------------------------------------------------------------------- */
+.p5-transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  contain: layout style paint;
+}
+
+.p5-transition-overlay.is-active {
+  display: flex;
+}
+
+.p5-trans-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(230, 0, 18, 0.25) 0%, rgba(10, 10, 12, 0.94) 72%);
+  opacity: 0;
+}
+
+.p5-trans-starburst {
+  position: absolute;
+  width: 155vmax;
+  height: 155vmax;
+  background:
+    radial-gradient(circle, rgba(10, 10, 12, 0.18) 18%, transparent 22%),
+    linear-gradient(125deg, #ff0f23 0%, #e60012 45%, #8a000b 100%);
+  background-size: 14px 14px, 100% 100%;
+  clip-path: polygon(
+    50% 0%, 60% 24%, 86% 6%, 74% 32%, 100% 34%, 78% 50%,
+    98% 72%, 72% 70%, 82% 96%, 56% 78%, 48% 100%, 40% 76%,
+    14% 94%, 26% 68%, 0% 66%, 22% 50%, 2% 28%, 28% 30%,
+    18% 4%, 44% 22%
+  );
+  transform: scale(0.02);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.p5-trans-starburst-inner {
+  position: absolute;
+  width: 115vmax;
+  height: 115vmax;
+  background: #0a0a0c;
+  clip-path: polygon(
+    50% 4%, 59% 29%, 85% 14%, 71% 39%, 96% 45%, 73% 56%,
+    91% 81%, 65% 73%, 68% 97%, 49% 79%, 30% 96%, 35% 72%,
+    9% 80%, 27% 56%, 4% 44%, 29% 38%, 15% 14%, 41% 29%
+  );
+  transform: scale(0.01);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.p5-trans-slash-bar {
+  position: absolute;
+  left: -15%;
+  width: 130%;
+  padding: 0.7rem 0;
+  background: #0a0a0c;
+  border-top: 6px solid #fff;
+  border-bottom: 6px solid var(--p5-red);
+  box-shadow: 0 12px 0 rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-9deg) scaleX(0);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.p5-trans-slash-text {
+  font-family: var(--p5-font-display, Impact, sans-serif);
+  font-size: clamp(2.4rem, 7vw, 5.2rem);
+  font-style: italic;
+  letter-spacing: 0.14em;
+  color: #fff;
+  text-shadow: 5px 5px 0 var(--p5-red), -2px -2px 0 #000;
+  line-height: 1;
+}
+
+.p5-trans-mask-stage {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.05);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.p5-trans-mask-img {
+  width: min(360px, 68vw);
+  height: auto;
+  display: block;
+  filter:
+    drop-shadow(0 0 18px #e60012)
+    drop-shadow(0 0 42px rgba(230, 0, 18, 0.85))
+    drop-shadow(8px 8px 0 #000);
+}
+
+/* --- OPEN MODE: SMALL -> BIG EXPLOSIVE EXPANSION --- */
+.p5-transition-overlay.mode-open.phase-in .p5-trans-backdrop {
+  animation: p5BackdropIn 290ms ease-out forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-in .p5-trans-starburst {
+  animation: p5StarOpenIn 290ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-in .p5-trans-starburst-inner {
+  animation: p5InnerStarOpenIn 290ms cubic-bezier(0.16, 1, 0.3, 1) 40ms forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-in .p5-trans-slash-bar {
+  animation: p5SlashOpenIn 280ms cubic-bezier(0.16, 1, 0.3, 1) 45ms forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-in .p5-trans-mask-stage {
+  animation: p5MaskOpenIn 290ms cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-out .p5-trans-backdrop {
+  animation: p5FadeOutQuick 340ms ease-in forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-out .p5-trans-starburst {
+  animation: p5StarOpenOut 360ms cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-out .p5-trans-starburst-inner {
+  animation: p5InnerStarOpenOut 340ms cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-out .p5-trans-slash-bar {
+  animation: p5SlashOpenOut 320ms ease-in forwards;
+}
+
+.p5-transition-overlay.mode-open.phase-out .p5-trans-mask-stage {
+  animation: p5MaskOpenOut 340ms ease-in forwards;
+}
+
+/* --- CLOSE MODE: BIG -> SMALL COLLAPSE --- */
+.p5-transition-overlay.mode-close.phase-in .p5-trans-backdrop {
+  animation: p5BackdropIn 220ms ease-out forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-in .p5-trans-starburst {
+  animation: p5StarCloseIn 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-in .p5-trans-starburst-inner {
+  animation: p5InnerStarCloseIn 250ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-in .p5-trans-slash-bar {
+  animation: p5SlashCloseIn 240ms ease-out forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-in .p5-trans-mask-stage {
+  animation: p5MaskCloseIn 250ms ease-out forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-out .p5-trans-backdrop {
+  animation: p5FadeOutQuick 280ms ease-in forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-out .p5-trans-starburst {
+  animation: p5StarCloseOut 290ms cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-out .p5-trans-starburst-inner {
+  animation: p5InnerStarCloseOut 270ms cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-out .p5-trans-slash-bar {
+  animation: p5SlashCloseOut 260ms ease-in forwards;
+}
+
+.p5-transition-overlay.mode-close.phase-out .p5-trans-mask-stage {
+  animation: p5MaskCloseOut 280ms cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+}
+
+@keyframes p5BackdropIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes p5FadeOutQuick {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes p5StarOpenIn {
+  0% { transform: scale(0.03) rotate(-28deg); opacity: 0.4; }
+  65% { transform: scale(1.18) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1.65) rotate(0deg); opacity: 1; }
+}
+
+@keyframes p5InnerStarOpenIn {
+  0% { transform: scale(0.02) rotate(22deg); opacity: 0; }
+  100% { transform: scale(1.38) rotate(-5deg); opacity: 0.92; }
+}
+
+@keyframes p5SlashOpenIn {
+  0% { transform: rotate(-9deg) scaleX(0); opacity: 0; }
+  100% { transform: rotate(-9deg) scaleX(1); opacity: 1; }
+}
+
+@keyframes p5MaskOpenIn {
+  0% { transform: scale(0.08) rotate(-18deg); opacity: 0; }
+  70% { transform: scale(1.22) rotate(4deg); opacity: 1; }
+  100% { transform: scale(1.08) rotate(-3deg); opacity: 1; }
+}
+
+@keyframes p5StarOpenOut {
+  0% { transform: scale(1.65) rotate(0deg); opacity: 1; }
+  100% { transform: scale(2.5) rotate(14deg); opacity: 0; }
+}
+
+@keyframes p5InnerStarOpenOut {
+  0% { transform: scale(1.38) rotate(-5deg); opacity: 0.92; }
+  100% { transform: scale(2.3) rotate(-18deg); opacity: 0; }
+}
+
+@keyframes p5SlashOpenOut {
+  0% { transform: rotate(-9deg) translateX(0) scaleX(1); opacity: 1; }
+  100% { transform: rotate(-9deg) translateX(45%) scaleX(0.3); opacity: 0; }
+}
+
+@keyframes p5MaskOpenOut {
+  0% { transform: scale(1.08) rotate(-3deg); opacity: 1; }
+  100% { transform: scale(2.1) rotate(8deg); opacity: 0; }
+}
+
+@keyframes p5StarCloseIn {
+  0% { transform: scale(2.1) rotate(12deg); opacity: 0; }
+  100% { transform: scale(1.45) rotate(0deg); opacity: 1; }
+}
+
+@keyframes p5InnerStarCloseIn {
+  0% { transform: scale(1.9) rotate(-14deg); opacity: 0; }
+  100% { transform: scale(1.25) rotate(4deg); opacity: 0.92; }
+}
+
+@keyframes p5SlashCloseIn {
+  0% { transform: rotate(7deg) scaleX(1.2); opacity: 0; }
+  100% { transform: rotate(7deg) scaleX(1); opacity: 1; }
+}
+
+@keyframes p5MaskCloseIn {
+  0% { transform: scale(1.85) rotate(10deg); opacity: 0; }
+  100% { transform: scale(1.05) rotate(0deg); opacity: 1; }
+}
+
+@keyframes p5StarCloseOut {
+  0% { transform: scale(1.45) rotate(0deg); opacity: 1; }
+  100% { transform: scale(0.01) rotate(-34deg); opacity: 0; }
+}
+
+@keyframes p5InnerStarCloseOut {
+  0% { transform: scale(1.25) rotate(4deg); opacity: 0.92; }
+  100% { transform: scale(0.01) rotate(28deg); opacity: 0; }
+}
+
+@keyframes p5SlashCloseOut {
+  0% { transform: rotate(7deg) scale(1); opacity: 1; }
+  100% { transform: rotate(7deg) scale(0.05); opacity: 0; }
+}
+
+@keyframes p5MaskCloseOut {
+  0% { transform: scale(1.05) rotate(0deg); opacity: 1; }
+  100% { transform: scale(0.03) rotate(-22deg); opacity: 0; }
+}
+
+/* Battle Deck & Normal Sheet Scale Transitions */
+#personaDeckWrapper {
+  transform-origin: center top;
+  will-change: transform, opacity;
+}
+
+#personaDeckWrapper.p5-deck-enter {
+  animation: p5DeckPopIn 380ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#personaDeckWrapper.p5-deck-exit {
+  animation: p5DeckShrinkOut 240ms cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+}
+
+#sheetTabsContainer.p5-sheet-restore {
+  animation: p5SheetRestoreIn 280ms ease-out forwards;
+}
+
+@keyframes p5DeckPopIn {
+  0% { transform: scale(0.72) skewX(-3deg); opacity: 0; }
+  75% { transform: scale(1.02) skewX(0.5deg); opacity: 1; }
+  100% { transform: scale(1) skewX(0); opacity: 1; }
+}
+
+@keyframes p5DeckShrinkOut {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.62); opacity: 0; }
+}
+
+@keyframes p5SheetRestoreIn {
+  0% { transform: scale(0.96); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   13. Persona BGM Now-Playing / Mute Control Pill
+   -------------------------------------------------------------------------- */
+.p5-audio-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 36px;
+  padding: 0.35rem 0.9rem;
+  background: #0a0a0c;
+  color: #fff;
+  border: 2px solid var(--p5-red);
+  box-shadow: 3px 3px 0 #000, 5px 5px 0 var(--p5-red);
+  font-family: var(--p5-font-body, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: skewX(-8deg);
+  cursor: pointer;
+  transition: transform 0.18s var(--p5-spring), background 0.18s ease, border-color 0.18s ease;
+}
+
+.p5-audio-pill > * {
+  transform: skewX(8deg);
+}
+
+.p5-audio-pill:hover {
+  background: var(--p5-red);
+  border-color: #fff;
+  transform: skewX(-8deg) scale(1.04);
+}
+
+.p5-audio-pill:focus-visible {
+  outline: 2px solid var(--p5-yellow);
+  outline-offset: 3px;
+}
+
+.p5-audio-pill.is-muted {
+  border-color: #666;
+  color: #a8a8b3;
+  box-shadow: 3px 3px 0 #000;
+}
+
+.p5-audio-pill.is-blocked {
+  border-color: var(--p5-yellow);
+  color: var(--p5-yellow);
+  box-shadow: 3px 3px 0 #000, 5px 5px 0 var(--p5-yellow);
+}
+
+.p5-audio-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 14px;
+}
+
+.p5-audio-eq span {
+  display: block;
+  width: 3px;
+  background: var(--p5-yellow);
+  border-radius: 1px;
+  animation: p5EqBounce 0.72s ease-in-out infinite alternate;
+}
+
+.p5-audio-eq span:nth-child(1) { height: 6px; animation-delay: 0s; }
+.p5-audio-eq span:nth-child(2) { height: 13px; animation-delay: 0.18s; }
+.p5-audio-eq span:nth-child(3) { height: 9px; animation-delay: 0.32s; }
+.p5-audio-eq span:nth-child(4) { height: 12px; animation-delay: 0.1s; }
+
+.p5-audio-pill.is-muted .p5-audio-eq span,
+.p5-audio-pill.is-blocked .p5-audio-eq span {
+  animation: none;
+  height: 3px;
+  background: #666;
+}
+
+@keyframes p5EqBounce {
+  0% { transform: scaleY(0.35); }
+  100% { transform: scaleY(1); }
+}
+
+/* --------------------------------------------------------------------------
+   14. First Awakening Rising Spirit Fire Transition (mode-awakening)
+   Canon Persona 5 Electric Blue/Cyan Spiritual Fire + Crimson Tips & Embers
+   -------------------------------------------------------------------------- */
+.p5-awaken-stage {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.p5-transition-overlay.mode-awakening .p5-trans-backdrop,
+.p5-transition-overlay.mode-awakening .p5-trans-starburst,
+.p5-transition-overlay.mode-awakening .p5-trans-starburst-inner,
+.p5-transition-overlay.mode-awakening .p5-trans-slash-bar,
+.p5-transition-overlay.mode-awakening .p5-trans-mask-stage {
+  display: none !important;
+}
+
+.p5-transition-overlay.mode-awakening .p5-awaken-stage {
+  display: flex;
+}
+
+.p5-awaken-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 85%, rgba(0, 212, 255, 0.32) 0%, rgba(138, 0, 11, 0.45) 45%, rgba(6, 6, 10, 0.96) 85%);
+  opacity: 0;
+  will-change: opacity;
+}
+
+.p5-awaken-flame-layer {
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -14vh;
+  height: 132vh;
+  transform: translateY(108%);
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+.p5-awaken-flame-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.p5-awaken-flame-1 {
+  z-index: 1;
+  filter: drop-shadow(0 -14px 28px rgba(230, 0, 18, 0.8));
+}
+
+.p5-awaken-flame-2 {
+  z-index: 2;
+  filter: drop-shadow(0 -16px 34px rgba(0, 240, 255, 0.92)) drop-shadow(0 -6px 14px rgba(230, 0, 18, 0.55));
+}
+
+.p5-awaken-flame-3 {
+  z-index: 3;
+  filter: drop-shadow(0 -10px 22px rgba(0, 212, 255, 0.72));
+}
+
+/* Rising Spirit Embers */
+.p5-awaken-embers {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.p5-awaken-ember {
+  position: absolute;
+  border-radius: 50%;
+  background: #00f0ff;
+  box-shadow: 0 0 8px #00f0ff, 0 0 18px rgba(0, 212, 255, 0.85);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.p5-awaken-ember.is-crimson {
+  background: #ff2438;
+  box-shadow: 0 0 8px #e60012, 0 0 18px rgba(230, 0, 18, 0.9);
+}
+
+/* Center Focal Stage: Glowing Mask Silhouette + Dramatic Text */
+.p5-awaken-center {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  opacity: 0;
+  transform: scale(0.55) translateY(36px);
+  will-change: transform, opacity;
+}
+
+.p5-awaken-mask-img {
+  width: min(290px, 58vw);
+  height: auto;
+  display: block;
+  filter:
+    drop-shadow(0 0 14px #00f0ff)
+    drop-shadow(0 0 36px rgba(0, 212, 255, 0.9))
+    drop-shadow(0 0 54px rgba(230, 0, 18, 0.65))
+    drop-shadow(6px 6px 0 #000);
+}
+
+.p5-awaken-text {
+  font-family: var(--p5-font-display, Impact, sans-serif);
+  font-size: clamp(2.4rem, 6.8vw, 5rem);
+  font-style: italic;
+  letter-spacing: 0.16em;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow:
+    0 0 18px #00f0ff,
+    0 0 38px rgba(0, 212, 255, 0.85),
+    5px 5px 0 #e60012,
+    8px 8px 0 #000;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Awakening Phase-In (Bottom -> Top Curtain Rise) */
+.p5-transition-overlay.mode-awakening.phase-in .p5-awaken-backdrop {
+  animation: p5BackdropIn 320ms ease-out forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-in .p5-awaken-flame-1 {
+  animation: p5SpiritFlameRise1 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-in .p5-awaken-flame-2 {
+  animation: p5SpiritFlameRise2 480ms cubic-bezier(0.16, 1, 0.3, 1) 35ms forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-in .p5-awaken-flame-3 {
+  animation: p5SpiritFlameRise3 460ms cubic-bezier(0.16, 1, 0.3, 1) 70ms forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-in .p5-awaken-ember {
+  animation-name: p5SpiritEmberRise;
+  animation-timing-function: ease-out;
+  animation-fill-mode: forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-in .p5-awaken-center {
+  animation: p5AwakenCenterIn 420ms cubic-bezier(0.16, 1, 0.3, 1) 140ms forwards;
+}
+
+/* Awakening Phase-Out (Flames Sweep Upward Off Screen to Reveal Velvet Room Wizard) */
+.p5-transition-overlay.mode-awakening.phase-out .p5-awaken-backdrop {
+  animation: p5FadeOutQuick 420ms ease-in forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-out .p5-awaken-flame-1 {
+  animation: p5SpiritFlameOut 440ms cubic-bezier(0.55, 0.06, 0.68, 0.19) forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-out .p5-awaken-flame-2 {
+  animation: p5SpiritFlameOut 410ms cubic-bezier(0.55, 0.06, 0.68, 0.19) 35ms forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-out .p5-awaken-flame-3 {
+  animation: p5SpiritFlameOut 380ms cubic-bezier(0.55, 0.06, 0.68, 0.19) 70ms forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-out .p5-awaken-center {
+  animation: p5AwakenCenterOut 360ms ease-in forwards;
+}
+
+.p5-transition-overlay.mode-awakening.phase-out .p5-awaken-ember {
+  animation: p5FadeOutQuick 300ms ease-in forwards;
+}
+
+@keyframes p5SpiritFlameRise1 {
+  0%   { transform: translateY(108%) scaleX(1.03); }
+  75%  { transform: translateY(-6%) scaleX(0.99); }
+  100% { transform: translateY(-12%) scaleX(1); }
+}
+
+@keyframes p5SpiritFlameRise2 {
+  0%   { transform: translateY(108%) scaleX(0.97); }
+  75%  { transform: translateY(-4%) scaleX(1.03); }
+  100% { transform: translateY(-10%) scaleX(1); }
+}
+
+@keyframes p5SpiritFlameRise3 {
+  0%   { transform: translateY(108%) scaleX(1.02); }
+  100% { transform: translateY(-6%) scaleX(1); }
+}
+
+@keyframes p5SpiritFlameOut {
+  0%   { transform: translateY(-10%); opacity: 1; }
+  100% { transform: translateY(-125%); opacity: 0; }
+}
+
+@keyframes p5SpiritEmberRise {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+  18%  { opacity: 1; }
+  100% { transform: translate(var(--ember-drift, 12px), -105vh) scale(0.25); opacity: 0; }
+}
+
+@keyframes p5AwakenCenterIn {
+  0%   { transform: scale(0.45) translateY(42px); opacity: 0; }
+  65%  { transform: scale(1.09) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes p5AwakenCenterOut {
+  0%   { transform: scale(1) translateY(0); opacity: 1; }
+  100% { transform: scale(1.65) translateY(-44px); opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   15. Metaverse Crimson Bleeding-Out Effect (body.persona-metaverse-active)
+   Infuses the entire Character Sheet with P5 crimson-noir aura while Battle Deck is open
+   -------------------------------------------------------------------------- */
+
+/* Smooth enter/exit baseline transitions on target panels */
+.ability-card,
+.student-id-card,
+.student-id-card .id-card-header,
+.sheet-col .card,
+.vitals-card,
+.sheet-banner,
+.sheet-toolbar,
+.skill-row,
+.save-item,
+.passive-item {
+  transition:
+    background 0.45s ease,
+    background-color 0.45s ease,
+    border-color 0.45s ease,
+    box-shadow 0.45s ease,
+    color 0.45s ease;
+}
+
+/* Global Crimson Bleed Aura + Comic Halftone Texture sweeping from Bottom-Right */
+body.persona-metaverse-active::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 75% 75% at 88% 92%, rgba(230, 0, 18, 0.28) 0%, rgba(179, 0, 12, 0.12) 42%, transparent 74%),
+    radial-gradient(ellipse 50% 45% at 10% 8%, rgba(230, 0, 18, 0.14) 0%, transparent 62%),
+    radial-gradient(circle, rgba(230, 0, 18, 0.12) 15%, transparent 20%);
+  background-size: 100% 100%, 100% 100%, 12px 12px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  animation: p5MetaverseBleedIn 0.45s ease-out forwards;
+}
+
+/* Edge Noir-Crimson Vignette */
+body.persona-metaverse-active::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  box-shadow: inset 0 0 95px rgba(230, 0, 18, 0.24), inset 0 0 180px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  animation: p5MetaverseBleedIn 0.45s ease-out 0.06s forwards;
+}
+
+@keyframes p5MetaverseBleedIn {
+  0%   { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Keep sheet content layered cleanly above background bleed aura */
+body.persona-metaverse-active .sheet-container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Sheet Toolbar & Banner: sharp crimson-black border accents */
+body.persona-metaverse-active .sheet-toolbar {
+  background: linear-gradient(135deg, #0d0d12 0%, #16090c 100%) !important;
+  border-color: rgba(230, 0, 18, 0.6) !important;
+  box-shadow: 4px 4px 0 #000 !important;
+}
+
+body.persona-metaverse-active .sheet-banner {
+  background: linear-gradient(135deg, #0f0f15 0%, #19080c 68%, #26060b 100%) !important;
+  border-color: rgba(230, 0, 18, 0.72) !important;
+  border-bottom: 3px solid #e60012 !important;
+  box-shadow: 5px 5px 0 #000, inset -40px 0 60px -30px rgba(230, 0, 18, 0.28) !important;
+}
+
+/* 6 Ability Score Cards (Top Row) */
+body.persona-metaverse-active .ability-card {
+  background: linear-gradient(160deg, #111116 0%, #170a0e 100%) !important;
+  border: 2px solid rgba(230, 0, 18, 0.72) !important;
+  box-shadow: 4px 4px 0 #000, inset 0 -18px 24px -18px rgba(230, 0, 18, 0.42) !important;
+}
+
+body.persona-metaverse-active .ability-card:hover {
+  border-color: #ffffff !important;
+  transform: translateY(-3px) skewX(-3deg);
+  box-shadow: 5px 5px 0 #000, 8px 8px 0 #e60012, 0 0 18px rgba(230, 0, 18, 0.45) !important;
+}
+
+body.persona-metaverse-active .ability-card-label {
+  color: #ff4d5a !important;
+  letter-spacing: 0.08em;
+}
+
+body.persona-metaverse-active .ability-card-mod {
+  color: #ffffff !important;
+  text-shadow: 2px 2px 0 #e60012, 3px 3px 0 #000;
+}
+
+/* Student ID Card -> Phantom Thief Calling Card Aesthetic */
+body.persona-metaverse-active .student-id-card {
+  background: #0e0e13 !important;
+  border: 2px solid #e60012 !important;
+  box-shadow: 5px 5px 0 #000, inset -20px 0 36px -22px rgba(230, 0, 18, 0.48) !important;
+}
+
+body.persona-metaverse-active .student-id-card .id-card-header {
+  background: linear-gradient(125deg, #8f000b 0%, #e60012 65%, #120508 100%) !important;
+  border-bottom: 2px solid #ffffff !important;
+}
+
+body.persona-metaverse-active .student-id-card .id-school-emblem {
+  background: #0a0a0c !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 2px 2px 0 #000;
+}
+
+body.persona-metaverse-active .student-id-card .id-stamp-badge {
+  background: rgba(230, 0, 18, 0.9) !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(230, 0, 18, 0.85);
+}
+
+/* Left & Center Panels (Saving Throws, Passive Senses, 18 Sub-Skills):
+   Noir base + glowing crimson right edge (aura bleeding from Battle Deck on bottom-right!) */
+body.persona-metaverse-active .sheet-col.col-left .card:not(.student-id-card),
+body.persona-metaverse-active .sheet-col.col-center .card {
+  background: linear-gradient(90deg, #0e0e13 0%, #110d12 78%, #1c090d 100%) !important;
+  border: 1.5px solid rgba(230, 0, 18, 0.42) !important;
+  border-right: 3px solid #e60012 !important;
+  box-shadow: 4px 4px 0 #000, inset -22px 0 30px -20px rgba(230, 0, 18, 0.52) !important;
+}
+
+body.persona-metaverse-active .box-header-title {
+  color: #ff4d5a !important;
+  border-bottom-color: rgba(230, 0, 18, 0.5) !important;
+  text-shadow: 1px 1px 0 #000;
+}
+
+body.persona-metaverse-active .prof-dot.filled {
+  background: #e60012 !important;
+  border-color: #ff6b76 !important;
+  box-shadow: 0 0 8px rgba(230, 0, 18, 0.9) !important;
+}
+
+body.persona-metaverse-active .skill-stat-tag {
+  background: rgba(230, 0, 18, 0.16) !important;
+  border-color: rgba(230, 0, 18, 0.48) !important;
+  color: #ff8a93 !important;
+}
+
+body.persona-metaverse-active .skill-row:hover,
+body.persona-metaverse-active .save-item:hover {
+  background: rgba(230, 0, 18, 0.24) !important;
+  border-left: 3px solid #e60012;
+  color: #ffffff !important;
+}
+
+body.persona-metaverse-active .passive-val {
+  background: #14080b !important;
+  border-color: #e60012 !important;
+  color: #ffe600 !important;
+  box-shadow: 2px 2px 0 #000;
+}
+
+/* Right-Top Dual Vitals (Physical & Social/Mental Vitals directly above Battle Deck) */
+body.persona-metaverse-active .vitals-card.vitals-physical,
+body.persona-metaverse-active .vitals-card.vitals-mental {
+  background: linear-gradient(180deg, #111016 0%, #1c080c 100%) !important;
+  border: 2px solid rgba(230, 0, 18, 0.78) !important;
+  box-shadow: 4px 4px 0 #000, 0 0 22px rgba(230, 0, 18, 0.22), inset 0 -18px 26px -16px rgba(230, 0, 18, 0.48) !important;
+}
+
+body.persona-metaverse-active .vitals-card .vital-bubble {
+  background: rgba(10, 10, 14, 0.82) !important;
+  border-color: rgba(230, 0, 18, 0.42) !important;
+}
+
+/* Break the Mask Active Button — amplified Metaverse glow */
+body.persona-metaverse-active .break-the-mask-btn.active {
+  box-shadow:
+    4px 4px 0px #000,
+    7px 7px 0px var(--p5-yellow),
+    0 0 24px rgba(230, 0, 18, 0.65),
+    0 0 48px rgba(230, 0, 18, 0.28) !important;
+}
+
+/* --------------------------------------------------------------------------
+   16. Accessibility & Reduced Motion
+   -------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .break-the-mask-btn,
+  .break-the-mask-btn .joker-mask-img,
+  .p5-cmd-btn,
+  .p5-wedge-btn,
+  .p5-wedge-shard,
+  .p5-skill-card,
+  .p5-arcana-full-card,
+  .p5-aoa-screen,
+  .p5-transition-overlay *,
+  .p5-awaken-flame-layer,
+  .p5-awaken-ember,
+  .p5-awaken-center,
+  #personaDeckWrapper,
+  #sheetTabsContainer,
+  .p5-audio-eq span {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+  }
+
+  body.persona-metaverse-active::before,
+  body.persona-metaverse-active::after {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}

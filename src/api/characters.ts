@@ -36,6 +36,9 @@ function normalizeCharacter(item: any): Character {
   if (typeof item?.version === "number") {
     char.version = item.version;
   }
+  if (item?.persona) {
+    char.persona = item.persona;
+  }
   return char;
 }
 
@@ -64,6 +67,7 @@ function toDbCharacterInsert(char: Character): Record<string, any> {
     finances: char.finances,
     inventory: char.inventory,
     backstory_fields: char.backstory_fields,
+    persona: char.persona || null,
     version: char.version || 1
   };
 }
@@ -94,6 +98,7 @@ function sanitizeDbUpdates(updates: Partial<Character>): Record<string, any> {
     "finances",
     "inventory",
     "backstory_fields",
+    "persona",
     "version",
     "updated_at"
   ]);
