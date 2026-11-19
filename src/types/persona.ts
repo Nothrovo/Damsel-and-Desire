@@ -84,6 +84,61 @@ export interface PersonaSpell {
   isApex?: boolean;                // Strain 2d6
 }
 
+export type PersonaItemCategory =
+  | 'heal_hp'
+  | 'heal_sp'
+  | 'heal_both'
+  | 'damage'
+  | 'buff'
+  | 'debuff'
+  | 'cure';
+
+export interface PersonaItemDef {
+  id: string;
+  name: string;
+  category: PersonaItemCategory;
+  description: string;
+  hpRestore?: number;         // Flat HP restore (Battle Deck ×10 scale)
+  hpRestorePercent?: number;  // e.g. 0.3 for 30% max HP, 1 for 100% full HP
+  spRestore?: number;         // Flat SP restore (Battle Deck ×10 scale)
+  spRestorePercent?: number;  // e.g. 1 for 100% full SP
+  damageDice?: string;        // e.g. "2d6"
+  damageMod?: number;         // e.g. 2
+  damageElement?: ElementType;
+  effectLabel?: string;       // Short badge text for active buff/debuff (e.g. "ATK +2 (3t)")
+  durationTurns?: number;
+  isCustom?: boolean;
+}
+
+export interface PersonaInventoryEntry {
+  itemId: string;
+  qty: number;
+  customItem?: PersonaItemDef; // Present when user created a custom item
+}
+
+export type PersonaWeaponKind = 'melee' | 'gun';
+
+export interface PersonaWeaponDef {
+  id: string;
+  name: string;
+  kind: PersonaWeaponKind;
+  origin?: string;            // e.g. "Joker", "Ryuji", "Custom"
+  toHitBonus: number;         // Flat weapon attack bonus
+  damageDice: string;         // e.g. "1d6", "1d8", "2d6"
+  damageBonus: number;        // Flat weapon damage bonus
+  maxBullets?: number;        // Only for gun weapons
+  critRange?: number;         // Default 20 (or 19 for high-crit weapons)
+  notes?: string;             // Flavor / special mechanical tag
+  isCustom?: boolean;
+}
+
+export interface PersonaActiveEffect {
+  id: string;
+  label: string;
+  type: 'buff' | 'debuff' | 'shield';
+  turnsRemaining?: number;
+}
+
 // Stored in Supabase `characters.persona`
 export interface CharacterPersona {
   isAwakened: boolean;
@@ -98,9 +153,14 @@ export interface CharacterPersona {
   currentHp: number;               // Mirrored Physical HP × 10
   maxHp: number;                   // Mirrored Physical HP Max × 10
   gunBullets: number;              // Current ammo in magazine
-  maxGunBullets: number;           // Defaults to 8
+  maxGunBullets: number;           // Defaults to equipped gun's maxBullets (or 8)
   encounterActive: boolean;        // Track if currently in combat encounter
   worldChosenStat?: 'physique' | 'intelligent' | 'looks' | 'mind' | 'talent' | 'luck';
+  items?: PersonaInventoryEntry[]; // Persona battle inventory items
+  weapons?: PersonaWeaponDef[];    // Owned catalog & custom weapons (melee + gun)
+  equippedMeleeId?: string;        // Active Sword / Melee weapon ID
+  equippedGunId?: string;          // Active Gun weapon ID
+  activeEffects?: PersonaActiveEffect[]; // Active buff/debuff/shield badges
 }
 
 export type BattleCommand = 'attack' | 'gun' | 'persona' | 'item' | 'guard';

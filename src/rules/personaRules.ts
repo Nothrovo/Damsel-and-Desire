@@ -2,8 +2,14 @@
 // Persona 5 Royal Add-On System Rules Engine & Calculation Logic
 // ============================================================================
 
-import type { ArcanaId, CharacterPersona } from '../types/persona';
+import type { ArcanaId, CharacterPersona, PersonaSpell } from '../types/persona';
 import type { Character } from '../types';
+import { getDefaultPersonaStarterItems } from '../data/personaItems';
+import {
+  getDefaultPersonaStarterWeapons,
+  DEFAULT_MELEE_WEAPON,
+  DEFAULT_GUN_WEAPON,
+} from '../data/personaWeapons';
 
 export const DEFAULT_MAX_BULLETS = 8;
 
@@ -41,14 +47,106 @@ export function toBattleMaxSp(composureMax: number): number {
 }
 
 /**
- * Convert Battle Deck values back to standard sheet numbers (÷10, rounded)
+ * Convert Battle Deck values back to standard sheet numbers (÷10, floored down)
+ * e.g. 75 HP -> 7 HP on normal sheet
  */
 export function fromBattleHp(battleHp: number): number {
-  return Math.max(0, Math.round(battleHp / 10));
+  return Math.max(0, Math.floor((battleHp || 0) / 10));
 }
 
 export function fromBattleSp(battleSp: number): number {
-  return Math.max(0, Math.round(battleSp / 10));
+  return Math.max(0, Math.floor((battleSp || 0) / 10));
+}
+
+/**
+ * Sync Persona Battle Deck HP/SP changes back into standard sheet vitals (floor ÷ 10).
+ * Keeps standard sheet values bounded within [0, max].
+ */
+export function syncPersonaToSheetVitals(
+  char: Character,
+  battleHp: number,
+  battleSp: number
+): void {
+  if (!char.vitals) return;
+  const maxPhys = char.vitals.physicalHpMax || 10;
+  const maxComp = char.vitals.composureMax || 10;
+  char.vitals.physicalHpCurrent = Math.min(maxPhys, fromBattleHp(battleHp));
+  char.vitals.composureCurrent = Math.min(maxComp, fromBattleSp(battleSp));
+}
+
+export interface ParsedDiceExpression {
+  count: number;
+  sides: number;
+  modifier: number;
+  normalized: string; // e.g. "2d8"
+}
+
+/**
+ * Parses dice strings like "d6", "1d8", "2d6 + 3", "3d10-1" into structured components.
+ */
+export function parseDiceExpression(expr: string, extraMod: number = 0): ParsedDiceExpression {
+  const clean = (expr || '1d6').trim();
+  const match = clean.match(/(\d*)\s*d\s*(\d+)(?:\s*([+-])\s*(\d+))?/i);
+  if (!match) {
+    return { count: 1, sides: 20, modifier: extraMod, normalized: '1d20' };
+  }
+  const count = Math.max(1, parseInt(match[1] || '1', 10) || 1);
+  const sides = Math.max(2, parseInt(match[2] || '6', 10) || 6);
+  const sign = match[3] === '-' ? -1 : 1;
+  const parsedMod = match[4] ? sign * parseInt(match[4], 10) : 0;
+  return {
+    count,
+    sides,
+    modifier: parsedMod + extraMod,
+    normalized: `${count}d${sides}`,
+  };
+}
+
+/**
+ * Multiplies the dice count of a weapon/AOA expression (e.g. "1d6" × 4 shots -> "4d6").
+ */
+export function scaleDiceExpression(expr: string, multiplier: number): string {
+  const parsed = parseDiceExpression(expr);
+  const mult = Math.max(1, Math.floor(multiplier || 1));
+  return `${parsed.count * mult}d${parsed.sides}`;
+}
+
+/**
+ * Extracts dice expression & resolved modifier for a PersonaSpell using character STR/MAG.
+ */
+export function resolveSpellDamageSpec(
+  spell: PersonaSpell,
+  stats: { str: { mod: number }; mag: { mod: number } }
+): { dice: string; mod: number; isHeal: boolean } | null {
+  if (!spell.damageFormula) return null;
+  const formula = spell.damageFormula;
+  const diceMatch = formula.match(/(\d+)\s*×\s*\((\d*d\d+)/i);
+  let baseDice: string | null = null;
+  if (diceMatch) {
+    const mult = parseInt(diceMatch[1], 10) || 1;
+    baseDice = scaleDiceExpression(diceMatch[2], mult);
+  } else {
+    const simpleMatch = formula.match(/(\d*d\d+)/i);
+    if (simpleMatch) {
+      const parsed = parseDiceExpression(simpleMatch[1]);
+      baseDice = parsed.normalized;
+    }
+  }
+  if (!baseDice) return null;
+
+  let mod = 0;
+  if (/\bMAG\b/i.test(formula)) mod += stats.mag.mod;
+  if (/\bSTR\b/i.test(formula)) mod += stats.str.mod;
+  const flatMatch = formula.match(/([+-])\s*(\d+)(?!\s*d)/);
+  if (flatMatch) {
+    mod += (flatMatch[1] === '-' ? -1 : 1) * parseInt(flatMatch[2], 10);
+  }
+
+  return {
+    dice: baseDice,
+    mod,
+    isHeal: spell.category === 'heal',
+  };
 }
 
 /**
@@ -275,9 +373,14 @@ export function createDefaultPersonaData(
     maxHp,
     currentSp,
     maxSp,
-    gunBullets: DEFAULT_MAX_BULLETS,
-    maxGunBullets: DEFAULT_MAX_BULLETS,
+    gunBullets: DEFAULT_GUN_WEAPON.maxBullets || DEFAULT_MAX_BULLETS,
+    maxGunBullets: DEFAULT_GUN_WEAPON.maxBullets || DEFAULT_MAX_BULLETS,
     encounterActive: false,
     worldChosenStat,
+    items: getDefaultPersonaStarterItems(),
+    weapons: getDefaultPersonaStarterWeapons(),
+    equippedMeleeId: DEFAULT_MELEE_WEAPON.id,
+    equippedGunId: DEFAULT_GUN_WEAPON.id,
+    activeEffects: [],
   };
 }

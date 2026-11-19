@@ -42,6 +42,15 @@ import { renderPersonaBattleDeck, attachPersonaBattleDeckEvents } from "../compo
 import { personaWizardModal } from "../components/PersonaWizardModal";
 import { personaTransitionOverlay } from "../components/PersonaTransitionOverlay";
 import { personaAudio } from "../utils/personaAudio";
+import {
+  toBattleHp,
+  toBattleMaxHp,
+  toBattleSp,
+  toBattleMaxSp,
+  fromBattleHp,
+  fromBattleSp,
+  syncPersonaToSheetVitals,
+} from "../rules/personaRules";
 import { subclassSelectModal } from "../components/SubclassSelectModal";
 import { editCharacterModal } from "../components/EditCharacterModal";
 import { featPickerModal } from "../components/FeatPickerModal";
@@ -121,6 +130,7 @@ let activeMoveFilter: string = "all";
 let isDmUnlocked = false;
 let isPersonaDeckOpen = false;
 let activeRenderedMoves: MoveItem[] = [];
+let activeStoreUnsubscribe: (() => void) | null = null;
 
 // Cached compendiums for the active sheet
 let compAbilities: AbilityCompendium[] = [];
@@ -209,8 +219,12 @@ export async function renderCharacterSheetView(params: Record<string, string>): 
     renderDndBeyondSheet(appContainer, char);
     attachSheetEvents(appContainer, char);
 
-    // Subscribe to store updates (e.g. from modals)
-    characterStore.subscribe(() => {
+    // Subscribe to store updates (clean up any prior sheet subscription first)
+    if (activeStoreUnsubscribe) {
+      activeStoreUnsubscribe();
+      activeStoreUnsubscribe = null;
+    }
+    activeStoreUnsubscribe = characterStore.subscribe(() => {
       const updated = characterStore.currentCharacter;
       if (updated && updated.id === char.id) {
         Object.assign(char, updated);
@@ -1652,6 +1666,53 @@ function renderFeatsTabContent(char: Character, isDmUnlocked: boolean): string {
   return html;
 }
 
+function buildMoveActionRollConfig(
+  move: MoveItem,
+  rollParams: ReturnType<typeof resolveMoveRollParameters>,
+  initialFocus: 'check' | 'damage'
+) {
+  const steps: Array<{
+    id: 'to_hit' | 'damage' | 'heal' | 'check';
+    label: string;
+    dice: string;
+    mod: number;
+    subtitle?: string;
+  }> = [];
+
+  if (rollParams.hasCheck) {
+    steps.push({
+      id: rollParams.damageDie ? 'to_hit' : 'check',
+      label: rollParams.damageDie ? 'To Hit' : 'Check d20',
+      dice: '1d20',
+      mod: rollParams.checkMod,
+      subtitle: move.check || 'd20 Check',
+    });
+  }
+
+  if (rollParams.damageDie) {
+    steps.push({
+      id: rollParams.isHeal ? 'heal' : 'damage',
+      label: rollParams.isHeal ? 'Pulihkan' : 'Damage',
+      dice: rollParams.damageDie,
+      mod: rollParams.damageMod || 0,
+      subtitle: move.damage || move.name,
+    });
+  }
+
+  const initialStepId =
+    initialFocus === 'damage' && rollParams.damageDie
+      ? (rollParams.isHeal ? 'heal' : 'damage')
+      : steps[0]?.id;
+
+  return {
+    title: move.name,
+    subtitle: `${move.cost || 'Action'} • ${move.range || 'Melee'}`,
+    theme: 'default' as const,
+    steps,
+    initialStepId,
+  };
+}
+
 function openMoveDrawer(m: MoveItem, char: Character) {
   const effectiveAbilities = calculateEffectiveStats(char).abilities;
   const rollParams = resolveMoveRollParameters(m, effectiveAbilities as any);
@@ -1679,20 +1740,20 @@ function openMoveDrawer(m: MoveItem, char: Character) {
     flavor: m.clearEffect ? `✦ ${m.clearEffect}` : `Aksi atau jurus khusus siswa Housen Academy (${m.type}).`,
     mechanics: m.desc,
     actions: m.isLocked ? [] : [
-      {
+      ...(rollParams.hasCheck ? [{
         label: `🎲 Lempar Check: ${rollParams.checkLabel} (${rollParams.checkMod >= 0 ? '+' : ''}${rollParams.checkMod})`,
-        variant: "primary",
+        variant: "primary" as const,
         icon: "🎲",
         onClick: () => {
-          diceRollerModal.show("d20", rollParams.checkMod, rollParams.checkLabel);
+          diceRollerModal.showAction(buildMoveActionRollConfig(m, rollParams, 'check'));
         }
-      },
+      }] : []),
       ...(rollParams.damageDie ? [{
         label: `${rollParams.isHeal ? "💖 Lempar Pemulihan" : "💥 Lempar Damage/Efek"}: ${rollParams.damageDie}${rollParams.damageMod ? (rollParams.damageMod >= 0 ? '+' + rollParams.damageMod : rollParams.damageMod) : ''}`,
         variant: "secondary" as const,
         icon: rollParams.isHeal ? "💖" : "💥",
         onClick: () => {
-          diceRollerModal.show(rollParams.damageDie!, rollParams.damageMod || 0, rollParams.damageLabel || m.name);
+          diceRollerModal.showAction(buildMoveActionRollConfig(m, rollParams, 'damage'));
         }
       }] : [])
     ]
@@ -1709,17 +1770,17 @@ function attachMoveCardEvents(container: HTMLElement, char: Character) {
 
     const rollParams = resolveMoveRollParameters(move, effectiveAbilities as any);
 
-    // Direct check roll button
+    // Direct check roll button -> Focused Action Dice Roller (specific dice only)
     card.querySelector(".btn-move-roll-check")?.addEventListener("click", (e: Event) => {
       e.stopPropagation();
-      diceRollerModal.show("d20", rollParams.checkMod, rollParams.checkLabel);
+      diceRollerModal.showAction(buildMoveActionRollConfig(move, rollParams, 'check'));
     });
 
-    // Direct damage roll button
+    // Direct damage roll button -> Focused Action Dice Roller (specific damage step active)
     card.querySelector(".btn-move-roll-damage")?.addEventListener("click", (e: Event) => {
       e.stopPropagation();
       if (rollParams.damageDie) {
-        diceRollerModal.show(rollParams.damageDie, rollParams.damageMod || 0, rollParams.damageLabel || move.name);
+        diceRollerModal.showAction(buildMoveActionRollConfig(move, rollParams, 'damage'));
       }
     });
 
@@ -2086,6 +2147,25 @@ function attachSheetEvents(container: HTMLElement, char: Character) {
       const btnSpan = maskBtn.querySelector(".mask-btn-label");
 
       if (nextOpen) {
+        // Reconcile Battle Deck HP/SP with normal sheet if sheet changed externally (e.g., Long Rest),
+        // while preserving exact Battle Deck precision like 75 when sheet is still floor(75/10)=7!
+        if (char.persona && char.vitals) {
+          char.persona.maxHp = toBattleMaxHp(char.vitals.physicalHpMax);
+          char.persona.maxSp = toBattleMaxSp(char.vitals.composureMax);
+          if (
+            char.persona.currentHp === undefined ||
+            fromBattleHp(char.persona.currentHp) !== char.vitals.physicalHpCurrent
+          ) {
+            char.persona.currentHp = toBattleHp(char.vitals.physicalHpCurrent);
+          }
+          if (
+            char.persona.currentSp === undefined ||
+            fromBattleSp(char.persona.currentSp) !== char.vitals.composureCurrent
+          ) {
+            char.persona.currentSp = toBattleSp(char.vitals.composureCurrent);
+          }
+        }
+
         // Trigger battle BGM immediately inside user click gesture
         void personaAudio.play("battle");
         personaTransitionOverlay.play(
@@ -2113,8 +2193,11 @@ function attachSheetEvents(container: HTMLElement, char: Character) {
           }
         );
       } else {
-        // Stop battle BGM & shrink deck big -> small
+        // Stop battle BGM & sync Battle Deck HP/SP back to normal sheet vitals (floor ÷ 10)
         personaAudio.stop(280);
+        if (char.persona && char.vitals) {
+          syncPersonaToSheetVitals(char, char.persona.currentHp, char.persona.currentSp);
+        }
         if (deckEl) {
           deckEl.classList.remove("p5-deck-enter");
           deckEl.classList.add("p5-deck-exit");
@@ -2135,6 +2218,8 @@ function attachSheetEvents(container: HTMLElement, char: Character) {
             maskBtn.classList.remove("active");
             maskBtn.setAttribute("aria-pressed", "false");
             if (btnSpan) btnSpan.textContent = "PERSONA BATTLE DECK";
+            // Refresh vitals & re-attach move card events so normal sheet reflects synced HP/Composure immediately
+            updateDynamicElements(char);
           },
           () => {
             tabsEl?.classList.remove("p5-sheet-restore");
@@ -2730,9 +2815,12 @@ function updateDynamicElements(char: Character) {
   const profBadge = document.getElementById("sheetProfBonus");
   if (profBadge) profBadge.textContent = `+${profBonus}`;
 
-  // Refresh Moves & Features List
+  // Refresh Moves & Features List (CRITICAL: always re-attach move card click handlers!)
   const movesList = document.getElementById("sheetMovesList");
-  if (movesList) movesList.innerHTML = renderMovesList(char, activeMoveFilter);
+  if (movesList) {
+    movesList.innerHTML = renderMovesList(char, activeMoveFilter);
+    attachMoveCardEvents(movesList, char);
+  }
   const featuresList = document.getElementById("sheetFeaturesList");
   if (featuresList) featuresList.innerHTML = renderFeaturesContent(char);
 }

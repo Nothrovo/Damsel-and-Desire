@@ -58,3 +58,59 @@ export async function uploadAvatar(file: File, userId: string): Promise<string> 
   return data.publicUrl;
 }
 
+/**
+ * Upload custom Persona manifestation artwork/photo (separate from student avatar).
+ */
+export async function uploadPersonaImage(file: File, charId: string): Promise<string> {
+  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+    throw new Error("Format berkas tidak didukung. Harap gunakan format JPG, PNG, WEBP, atau GIF.");
+  }
+
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    throw new Error("Ukuran berkas melebihi batas maksimal 2MB.");
+  }
+
+  const fileExt = (file.name.split(".").pop() || "png").toLowerCase();
+  const fileName = `persona_${charId}_${Date.now()}.${fileExt}`;
+
+  const primaryBucket = "codex-assets";
+  const primaryPath = `persona-images/${fileName}`;
+
+  let finalBucket = primaryBucket;
+  let finalPath = primaryPath;
+
+  const { error: primaryError } = await supabase.storage
+    .from(primaryBucket)
+    .upload(primaryPath, file, {
+      cacheControl: "3600",
+      upsert: true,
+      contentType: file.type
+    });
+
+  if (primaryError) {
+    const fallbackBucket = "avatars";
+    const fallbackPath = `persona/${fileName}`;
+    const { error: fallbackError } = await supabase.storage
+      .from(fallbackBucket)
+      .upload(fallbackPath, file, {
+        cacheControl: "3600",
+        upsert: true,
+        contentType: file.type
+      });
+
+    if (fallbackError) {
+      console.warn("Persona image upload error:", primaryError, fallbackError);
+      throw new Error(`Gagal mengunggah foto Persona: ${primaryError.message || fallbackError.message}`);
+    }
+
+    finalBucket = fallbackBucket;
+    finalPath = fallbackPath;
+  }
+
+  const { data } = supabase.storage
+    .from(finalBucket)
+    .getPublicUrl(finalPath);
+
+  return data.publicUrl;
+}
+

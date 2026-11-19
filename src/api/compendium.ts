@@ -314,6 +314,8 @@ export async function getCompendiumBasicActions(): Promise<BasicActionCompendium
           clearEffect: std.clearEffect,
           damageDie: std.damageDie,
           statKey: std.statKey,
+          rollBonus: std.rollBonus,
+          range: std.range,
           isHeal: std.isHeal,
           moveKind: std.moveKind
         } as any);

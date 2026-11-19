@@ -1230,7 +1230,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   10. All-Out Attack Dramatic Finisher Modal
+   10. All-Out Attack Dramatic Finisher Modal (Clean Layout + Joker MV Cinema)
    -------------------------------------------------------------------------- */
 .p5-aoa-screen {
   position: fixed;
@@ -1240,68 +1240,224 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 2rem;
-  overflow: hidden;
+  gap: 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2.5rem);
+  overflow-y: auto;
   box-sizing: border-box;
-  animation: p5-aoa-flash 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: p5-aoa-flash 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes p5-aoa-flash {
-  0% { transform: scale(1.2); opacity: 0; }
+  0% { transform: scale(1.12); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
 .p5-aoa-stripes {
-  position: absolute;
+  position: fixed;
   inset: 0;
   background-image: repeating-linear-gradient(
     45deg,
-    rgba(0, 0, 0, 0.95),
-    rgba(0, 0, 0, 0.95) 40px,
-    var(--p5-red) 40px,
-    var(--p5-red) 80px
+    rgba(0, 0, 0, 0.92),
+    rgba(0, 0, 0, 0.92) 42px,
+    var(--p5-red) 42px,
+    var(--p5-red) 84px
   );
-  opacity: 0.25;
+  opacity: 0.26;
   pointer-events: none;
+  z-index: 0;
 }
 
 .p5-aoa-header {
   position: relative;
   z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .p5-aoa-headline {
   font-family: var(--p5-font-display);
-  font-size: 5rem;
-  line-height: 0.9;
-  letter-spacing: 4px;
+  font-size: clamp(2.8rem, 6.2vw, 4.8rem);
+  line-height: 0.98;
+  letter-spacing: 0.08em;
   color: #fff;
   text-transform: uppercase;
-  transform: skewX(-12deg) rotate(-2deg);
-  text-shadow: 6px 6px 0px #000, 12px 12px 0px var(--p5-yellow);
+  transform: skewX(-10deg) rotate(-1.5deg);
+  text-shadow: 5px 5px 0 #000, 9px 9px 0 var(--p5-yellow);
   margin: 0;
+  padding-bottom: 4px;
 }
 
-@media (max-width: 600px) {
-  .p5-aoa-headline { font-size: 3rem; }
+.p5-aoa-subtitle-ribbon {
+  display: inline-block;
+  background: #0a0a0c;
+  color: #fff;
+  border: 2px solid #fff;
+  box-shadow: 4px 4px 0 #000;
+  padding: 0.35rem 1.15rem;
+  font-family: var(--p5-font-body);
+  font-size: clamp(0.8rem, 1.6vw, 1rem);
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transform: skewX(-10deg);
+}
+
+.p5-aoa-stage-grid {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.85fr);
+  align-items: center;
+  gap: 2rem;
+  max-width: 1180px;
+  width: 100%;
+  margin: auto;
+}
+
+@media (max-width: 880px) {
+  .p5-aoa-stage-grid {
+    grid-template-columns: 1fr;
+  }
+  .p5-aoa-callout-panel {
+    display: none;
+  }
 }
 
 .p5-aoa-body {
   position: relative;
   z-index: 2;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(10, 10, 14, 0.94);
   border: 3px solid #fff;
-  padding: 1.5rem 2rem;
-  max-width: 600px;
-  box-shadow: 10px 10px 0px #000;
-  transform: skewX(-6deg);
+  padding: 1.75rem 2rem;
+  box-shadow: 10px 10px 0 #000;
+  transform: skewX(-4deg);
+}
+
+.p5-aoa-body > * {
+  transform: skewX(4deg);
+}
+
+.p5-aoa-kicker {
+  font-family: var(--p5-font-display);
+  font-size: 1.65rem;
+  color: var(--p5-yellow);
+  letter-spacing: 0.08em;
+  margin-bottom: 0.4rem;
+}
+
+.p5-aoa-desc {
+  font-size: 0.95rem;
+  color: var(--p5-light-gray);
+  line-height: 1.5;
+  margin: 0 0 1.15rem 0;
+}
+
+.p5-aoa-ally-picker {
+  margin-bottom: 1rem;
+}
+
+.p5-aoa-ally-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #ccc;
+  margin-bottom: 0.45rem;
+}
+
+.p5-aoa-ally-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.p5-aoa-ally-btn {
+  background: #141418;
+  color: #fff;
+  border: 2px solid #555;
+  font-family: var(--p5-font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.06em;
+  padding: 0.4rem 0.9rem;
+  min-height: 40px;
+  cursor: pointer;
+  transform: skewX(-8deg);
+  transition: all 0.16s ease;
+}
+
+.p5-aoa-ally-btn:hover,
+.p5-aoa-ally-btn.active {
+  background: var(--p5-red);
+  border-color: #fff;
+  color: #fff;
+  box-shadow: 3px 3px 0 #000;
 }
 
 .p5-aoa-dice-box {
   font-family: var(--p5-font-display);
-  font-size: 2rem;
+  font-size: clamp(1.45rem, 2.8vw, 2rem);
   color: var(--p5-yellow);
-  margin: 0.75rem 0;
+  background: #050507;
+  border-left: 5px solid var(--p5-red);
+  padding: 0.65rem 1rem;
+  margin: 0.85rem 0 1.25rem 0;
+  letter-spacing: 0.06em;
+}
+
+.p5-aoa-actions {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.p5-aoa-callout-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.p5-aoa-star-emblem {
+  width: 240px;
+  height: 240px;
+  background: #0a0a0c;
+  border: 4px solid #fff;
+  clip-path: polygon(
+    50% 0%, 62% 28%, 94% 14%, 76% 42%, 100% 56%, 72% 68%,
+    84% 96%, 54% 80%, 34% 100%, 32% 70%, 2% 72%, 22% 46%,
+    6% 18%, 38% 30%
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(8px 8px 0 #000);
+}
+
+.p5-aoa-star-text {
+  font-family: var(--p5-font-display);
+  font-size: 2.3rem;
+  line-height: 0.95;
+  color: var(--p5-yellow);
+  text-align: center;
+  transform: rotate(-8deg);
+  text-shadow: 3px 3px 0 var(--p5-red);
+}
+
+.p5-aoa-callout-note {
+  background: rgba(10, 10, 14, 0.86);
+  border: 2px solid #fff;
+  color: #fff;
+  font-size: 0.85rem;
+  padding: 0.6rem 1rem;
+  text-align: center;
+  box-shadow: 4px 4px 0 #000;
+  transform: skewX(-6deg);
 }
 
 .p5-aoa-close-btn {
@@ -1309,20 +1465,88 @@
   color: #000;
   border: 2px solid #000;
   font-family: var(--p5-font-display);
-  font-size: 1.4rem;
-  padding: 0.6rem 2rem;
+  font-size: 1.25rem;
+  padding: 0.55rem 1.6rem;
+  min-height: 44px;
   cursor: pointer;
   text-transform: uppercase;
   font-weight: 900;
-  transform: skewX(-12deg);
-  box-shadow: 4px 4px 0px #000;
-  align-self: flex-start;
+  transform: skewX(-10deg);
+  box-shadow: 4px 4px 0 #000;
   transition: all 0.15s;
 }
 
 .p5-aoa-close-btn:hover {
   background: var(--p5-yellow);
-  transform: skewX(-12deg) scale(1.05);
+  transform: skewX(-10deg) scale(1.04);
+}
+
+/* Joker All-Out Attack MV Cinema Stage */
+.p5-aoa-mv-stage {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 1020px;
+  width: 100%;
+  margin: auto;
+}
+
+.p5-aoa-mv-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.p5-aoa-mv-damage-badge {
+  background: #0a0a0c;
+  color: var(--p5-yellow);
+  border: 3px solid #fff;
+  box-shadow: 5px 5px 0 #000;
+  font-family: var(--p5-font-display);
+  font-size: clamp(1.35rem, 2.8vw, 2.1rem);
+  letter-spacing: 0.08em;
+  padding: 0.45rem 1.25rem;
+  transform: skewX(-8deg);
+}
+
+.p5-aoa-mv-controls {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.p5-aoa-mv-frame-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border: 4px solid #fff;
+  box-shadow: 10px 10px 0 #000;
+  overflow: hidden;
+}
+
+.p5-aoa-mv-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.p5-aoa-footer {
+  position: relative;
+  z-index: 2;
+  font-family: var(--p5-font-display);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: 2px;
+  max-width: 1180px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* --------------------------------------------------------------------------
@@ -2245,7 +2469,813 @@ body.persona-metaverse-active .break-the-mask-btn.active {
 }
 
 /* --------------------------------------------------------------------------
-   16. Accessibility & Reduced Motion
+   16. Battle Deck v3 Enhancements:
+       - Dedicated Persona Portrait Upload Dropzone & Wizard Upload
+       - Interactive HP/SP Custom Adjuster
+       - Active Effects Bar & Equipped Weapon Strip
+       - Persona Inventory Bag, P5 Catalog & Custom Item Creator
+       - Sword/Gun Armory + Multi-Bullet Chamber & Burst Fire
+       - Focused Action Dice Roller Modal Styles
+   -------------------------------------------------------------------------- */
+
+/* Persona Portrait Upload Dropzone */
+.p5-persona-img-box {
+  cursor: pointer;
+}
+
+.p5-persona-img-box.empty-persona-img {
+  border: 2px dashed rgba(230, 0, 18, 0.75);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(230, 0, 18, 0.14) 0%, #070709 75%);
+}
+
+.p5-persona-img-box.empty-persona-img:hover {
+  border-color: var(--p5-yellow);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(230, 0, 18, 0.28) 0%, #0d070a 75%);
+}
+
+.p5-persona-upload-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 1rem;
+  color: #e2e2e8;
+  text-align: center;
+}
+
+.p5-persona-upload-empty svg {
+  color: var(--p5-red);
+}
+
+.p5-upload-title {
+  font-family: var(--p5-font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+
+.p5-upload-sub {
+  font-size: 0.74rem;
+  color: #a8a8b5;
+  line-height: 1.3;
+}
+
+.p5-persona-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 14, 0.74);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  font-family: var(--p5-font-display);
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  color: var(--p5-yellow);
+}
+
+.p5-persona-img-box:hover .p5-persona-img-overlay,
+.p5-persona-img-box:focus-visible .p5-persona-img-overlay {
+  opacity: 1;
+}
+
+.p5-persona-img-loading {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--p5-font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.1em;
+  color: var(--p5-cyan);
+  z-index: 3;
+}
+
+.p5-persona-photo-actions {
+  display: flex;
+  gap: 0.45rem;
+  width: 100%;
+  margin-bottom: 0.75rem;
+}
+
+.p5-photo-btn {
+  flex: 1;
+  background: #141418;
+  border: 1.5px solid var(--p5-red);
+  color: #fff;
+  font-family: var(--p5-font-display);
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  padding: 0.35rem 0.55rem;
+  min-height: 36px;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.p5-photo-btn:hover {
+  background: var(--p5-red);
+  border-color: #fff;
+}
+
+.p5-photo-btn-ghost {
+  flex: 0 0 auto;
+  border-color: #555;
+  color: #bbb;
+}
+
+.p5-photo-btn-ghost:hover {
+  background: #2b2b34;
+  color: #fff;
+  border-color: #fff;
+}
+
+/* Wizard Two-Col + Photo Preview */
+.p5-wizard-two-col {
+  display: grid;
+  grid-template-columns: 1.25fr 0.85fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .p5-wizard-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.p5-wizard-upload-box {
+  height: 175px;
+  background: #070709;
+  border: 2px dashed rgba(230, 0, 18, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.p5-wizard-upload-box:hover {
+  border-color: var(--p5-yellow);
+  background: #14080c;
+}
+
+.p5-wizard-img-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.p5-wizard-img-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  color: #ccc;
+  text-align: center;
+  padding: 0.75rem;
+  font-family: var(--p5-font-display);
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+}
+
+.p5-wizard-img-placeholder small {
+  font-family: var(--p5-font-body);
+  font-size: 0.7rem;
+  color: #888;
+}
+
+/* Interactive HP / SP Custom Adjuster inside Vital Cards */
+.p5-vital-interactive {
+  min-width: 245px;
+  padding: 0.75rem 0.95rem;
+}
+
+.p5-vital-sync-hint {
+  font-size: 0.68rem;
+  color: #9e9eae;
+  margin-top: 0.35rem;
+  transform: skewX(8deg);
+  letter-spacing: 0.04em;
+}
+
+.p5-vital-adjust-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.45rem;
+  transform: skewX(8deg);
+}
+
+.p5-vadj-input {
+  width: 58px;
+  min-height: 32px;
+  background: #070709;
+  border: 1.5px solid #555;
+  color: #fff;
+  text-align: center;
+  font-family: var(--p5-font-body);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 2px 4px;
+}
+
+.p5-vadj-input:focus {
+  outline: none;
+  border-color: var(--p5-yellow);
+}
+
+.p5-vadj-btn {
+  min-height: 32px;
+  padding: 0 0.5rem;
+  background: #141418;
+  border: 1.5px solid #555;
+  color: #fff;
+  font-family: var(--p5-font-display);
+  font-size: 0.88rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.p5-vadj-btn:hover:not(:disabled) {
+  border-color: #fff;
+  transform: translateY(-1px);
+}
+
+.p5-vadj-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.p5-vadj-minus {
+  border-color: rgba(230, 0, 18, 0.8);
+  color: #ff6b76;
+}
+.p5-vadj-minus:hover {
+  background: var(--p5-red);
+  color: #fff;
+}
+
+.p5-vadj-plus {
+  border-color: rgba(46, 204, 113, 0.8);
+  color: #5eead4;
+}
+.p5-vadj-plus:hover {
+  background: #16a34a;
+  color: #fff;
+}
+
+.p5-vadj-full {
+  border-color: rgba(255, 230, 0, 0.6);
+  color: var(--p5-yellow);
+}
+.p5-vadj-full:hover {
+  background: var(--p5-yellow);
+  color: #000;
+}
+
+/* Active Effects Bar */
+.p5-active-effects-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: #111116;
+  border: 1.5px solid rgba(255, 230, 0, 0.45);
+  padding: 0.5rem 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.p5-effects-prefix {
+  font-family: var(--p5-font-display);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: var(--p5-yellow);
+}
+
+.p5-effect-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  border: 1.5px solid #fff;
+  background: #0a0a0c;
+}
+
+.p5-effect-pill.effect-buff { border-color: #a855f7; color: #e9d5ff; }
+.p5-effect-pill.effect-shield { border-color: var(--p5-cyan); color: var(--p5-cyan); }
+.p5-effect-pill.effect-debuff { border-color: #f97316; color: #fed7aa; }
+
+.p5-effect-dismiss {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+/* Equipped Weapon Quick Strip */
+.p5-loadout-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.15rem;
+}
+
+@media (max-width: 640px) {
+  .p5-loadout-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+.p5-loadout-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #121217;
+  border: 1.5px solid #333;
+  border-left: 4px solid var(--p5-red);
+  padding: 0.45rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+.p5-loadout-tag {
+  font-family: var(--p5-font-display);
+  font-size: 0.9rem;
+  color: var(--p5-yellow);
+  letter-spacing: 0.08em;
+}
+
+.p5-loadout-name {
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.p5-loadout-stat {
+  margin-left: auto;
+  font-family: var(--p5-font-display);
+  font-size: 0.92rem;
+  color: var(--p5-cyan);
+  white-space: nowrap;
+}
+
+/* Inventory, Catalog, Armory Subpanels & Filter Pills */
+.p5-filter-pills,
+.p5-armory-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.p5-filter-pill {
+  background: #0a0a0c;
+  border: 1.5px solid #444;
+  color: #d4d4dc;
+  font-family: var(--p5-font-display);
+  font-size: 0.92rem;
+  letter-spacing: 0.06em;
+  padding: 0.3rem 0.75rem;
+  min-height: 36px;
+  cursor: pointer;
+  transform: skewX(-6deg);
+  transition: all 0.15s ease;
+}
+
+.p5-filter-pill:hover,
+.p5-filter-pill.active {
+  background: var(--p5-red);
+  border-color: #fff;
+  color: #fff;
+  box-shadow: 3px 3px 0 #000;
+}
+
+.p5-preset-empty-mag {
+  border-color: var(--p5-yellow);
+  color: var(--p5-yellow);
+}
+
+.p5-subpanel-box {
+  background: #0b0b0f;
+  border: 2px solid var(--p5-yellow);
+  box-shadow: 5px 5px 0 #000;
+  padding: 1rem;
+  margin: 0.75rem 0 1.25rem 0;
+}
+
+.p5-subpanel-title {
+  font-family: var(--p5-font-display);
+  font-size: 1.25rem;
+  letter-spacing: 0.08em;
+  color: var(--p5-yellow);
+  margin-bottom: 0.7rem;
+}
+
+.p5-subpanel-subtitle {
+  font-family: var(--p5-font-display);
+  font-size: 1.05rem;
+  letter-spacing: 0.08em;
+  color: var(--p5-cyan);
+  margin-bottom: 0.55rem;
+}
+
+.p5-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 0.65rem;
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.p5-catalog-card {
+  background: #14141a;
+  border: 1.5px solid #333;
+  padding: 0.7rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.p5-catalog-card.is-equipped {
+  border-color: var(--p5-yellow);
+  box-shadow: 3px 3px 0 var(--p5-red);
+}
+
+.p5-catalog-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.p5-catalog-name {
+  font-family: var(--p5-font-display);
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.p5-cat-tag {
+  font-size: 0.66rem;
+  font-weight: 800;
+  padding: 1px 6px;
+  border: 1px solid #666;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.p5-catalog-desc {
+  font-size: 0.76rem;
+  color: #bdbdca;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.p5-catalog-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.3rem;
+}
+
+.p5-mini-add-btn,
+.p5-qty-step-btn {
+  background: #0a0a0c;
+  border: 1.5px solid var(--p5-cyan);
+  color: var(--p5-cyan);
+  font-family: var(--p5-font-display);
+  font-size: 0.9rem;
+  padding: 2px 10px;
+  min-height: 28px;
+  cursor: pointer;
+}
+
+.p5-mini-add-btn:hover,
+.p5-qty-step-btn:hover {
+  background: var(--p5-cyan);
+  color: #000;
+}
+
+.p5-qty-chip {
+  background: var(--p5-yellow);
+  color: #000;
+  font-family: var(--p5-font-display);
+  font-size: 1rem;
+  font-weight: 900;
+  padding: 1px 8px;
+}
+
+.p5-cat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.p5-empty-bag-box {
+  padding: 1.5rem;
+  text-align: center;
+  background: #0a0a0c;
+  border: 1.5px dashed #444;
+  color: #bbb;
+  font-size: 0.88rem;
+}
+
+.p5-custom-builder-box {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1.5px dashed #333;
+}
+
+.p5-custom-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.55rem;
+}
+
+.p5-mini-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.72rem;
+  color: #bbb;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.p5-weapon-mini-stats {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--p5-cyan);
+}
+
+/* Equipped Sword & Gun Hero Panels */
+.p5-equipped-weapon-hero {
+  display: grid;
+  grid-template-columns: 1.25fr 0.9fr;
+  gap: 1.25rem;
+  align-items: center;
+  background: #0a0a0c;
+  border: 2px solid #333;
+  padding: 1.15rem;
+}
+
+@media (max-width: 760px) {
+  .p5-equipped-weapon-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+.p5-weapon-origin {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--p5-red);
+  text-transform: uppercase;
+}
+
+.p5-weapon-hero-name {
+  font-family: var(--p5-font-display);
+  font-size: 2rem;
+  letter-spacing: 0.06em;
+  color: #fff;
+  line-height: 1.05;
+  margin: 0.2rem 0 0.55rem 0;
+}
+
+.p5-weapon-hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-bottom: 0.55rem;
+}
+
+.p5-wstat-pill {
+  background: #17171f;
+  border: 1px solid #444;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.78rem;
+  color: #d4d4dc;
+}
+
+.p5-wstat-pill strong {
+  color: var(--p5-yellow);
+}
+
+.p5-weapon-notes {
+  font-size: 0.82rem;
+  color: #b8b8c6;
+  margin: 0.35rem 0 0 0;
+  line-height: 1.4;
+}
+
+.p5-weapon-hero-cta {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Multi-Bullet Chamber Visual + Burst Controls */
+.p5-bullet-chamber-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0.65rem 0 0.35rem 0;
+}
+
+.p5-bullet-pip {
+  width: 14px;
+  height: 24px;
+  border-radius: 6px 6px 2px 2px;
+  border: 1.5px solid #555;
+  background: #18181e;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+
+.p5-bullet-pip.filled {
+  background: linear-gradient(180deg, #ffe600 0%, #d97706 100%);
+  border-color: #fff;
+}
+
+.p5-bullet-pip.queued {
+  background: linear-gradient(180deg, #ff4d5a 0%, #e60012 100%);
+  border-color: var(--p5-yellow);
+  transform: translateY(-3px);
+  box-shadow: 0 0 8px rgba(230, 0, 18, 0.8);
+}
+
+.p5-gun-burst-panel {
+  background: #121218;
+  border: 2px solid rgba(230, 0, 18, 0.65);
+  padding: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.p5-burst-label {
+  font-family: var(--p5-font-display);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  color: var(--p5-yellow);
+}
+
+.p5-burst-stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.p5-burst-count-num {
+  font-family: var(--p5-font-display);
+  font-size: 2rem;
+  color: #fff;
+  min-width: 36px;
+  text-align: center;
+  line-height: 1;
+}
+
+.p5-burst-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.p5-burst-preview {
+  font-size: 0.8rem;
+  color: #d4d4dc;
+}
+
+.p5-burst-preview strong {
+  color: var(--p5-cyan);
+}
+
+.p5-empty-mag-alert {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: #ff6b76;
+  font-size: 0.85rem;
+}
+
+.p5-guard-banner-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* Focused Action Dice Roller Modal Additions */
+.dice-modal-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted, #94a3b8);
+  margin-top: 2px;
+}
+
+.dice-action-steps-bar {
+  display: flex;
+  gap: 0.55rem;
+  margin-bottom: 0.9rem;
+}
+
+.dice-action-step-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 0.55rem 0.7rem;
+  min-height: 52px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 2px solid rgba(148, 163, 184, 0.3);
+  border-radius: 8px;
+  color: #e2e8f0;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.dice-action-step-btn .step-name {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.dice-action-step-btn .step-formula {
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+.dice-action-step-btn.step-hit.active {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+}
+
+.dice-action-step-btn.step-damage.active {
+  border-color: #e60012;
+  background: rgba(230, 0, 18, 0.22);
+  color: #fecdd3;
+}
+
+.dice-action-step-btn.step-heal.active {
+  border-color: #2ecc71;
+  background: rgba(46, 204, 113, 0.2);
+  color: #bbf7d0;
+}
+
+.dice-crit-toggle-btn {
+  background: rgba(245, 158, 11, 0.14);
+  border: 1.5px solid #f59e0b;
+  color: #fde68a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dice-crit-toggle-btn.active {
+  background: #e60012;
+  border-color: #ffe600;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(230, 0, 18, 0.65);
+}
+
+.dice-result-box.is-crit {
+  border-color: #ffe600 !important;
+  box-shadow: 0 0 22px rgba(255, 230, 0, 0.45);
+}
+
+.dice-result-box.is-fumble {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.45);
+}
+
+.dice-modal-card.dice-modal-persona {
+  background: #0d0d12;
+  border: 3px solid #e60012;
+  box-shadow: 8px 8px 0 #000, 12px 12px 0 #e60012;
+}
+
+/* --------------------------------------------------------------------------
+   17. Accessibility & Reduced Motion
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   .break-the-mask-btn,
